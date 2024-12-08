@@ -4,6 +4,8 @@ from aiogram import Bot, Dispatcher, types,F
 from aiogram.filters.command import Command
 from dotenv import load_dotenv
 import os
+import json
+import requests
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
@@ -16,8 +18,24 @@ async def cmd_start(message: types.Message):
         [types.KeyboardButton(text="Создание персонажа"),types.KeyboardButton(text="Просмотр моих персонажей")],
         [types.KeyboardButton(text="Помощь")]
     ]
-    keyboard = types.ReplyKeyboardMarkup(keyboard=main_keyboard) # дописать регистрацию
-    await message.answer("Приветствуем вас!",reply_markup=keyboard)
+    keyboard = types.ReplyKeyboardMarkup(keyboard=main_keyboard) 
+    """user_data = {
+            "first_name": message.from_user.first_name,
+            "last_name": message.from_user.last_name,
+            "role": "player",
+            "is_bot": False,
+            "language_code": "rus",
+            "is_premium": False,
+            "username": f"super_{message.from_user.first_name}_123",
+            "age": 5,
+            "tg_id": message.from_user.id
+        }
+    print(user_data)
+    response = requests.post(url="http://localhost:9009/api/v1/auth/sign-up",json=json.dumps(user_data))
+    print(response.json())"""
+    #\nКод запроса:{response.status_code}
+    # потерпел фиаско в регистрации пользователя и убежал (422 ошибка >:\)
+    await message.answer(f"Приветствуем вас!",reply_markup=keyboard)
 
 @dp.message(F.text == "Создание персонажа")
 async def create_char(message: types.Message):
