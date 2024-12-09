@@ -74,19 +74,19 @@ async def create_char(message: types.Message):
     await message.answer("Тут создание персонажа!",reply_markup=keyboard)
 
 @dp.message(F.text == "Просмотр моих персонажей")
-async def create_char(message: types.Message):
+async def view_chars(message: types.Message):
     kb = [[types.KeyboardButton(text="Главная страница")]]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Ууууу, да у кого-то тут персонажи!") 
     await message.answer("Тут просмотр персонажей!",reply_markup=keyboard)
 
 @dp.message(F.text == "Помощь")
-async def create_char(message: types.Message):
+async def help(message: types.Message):
     kb = [[types.KeyboardButton(text="Главная страница")]]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Тут помощь Х)") 
     await message.answer("Тут помощь (возможно)!",reply_markup=keyboard)
 
 @dp.message(F.text == "Главная страница")
-async def create_char(message: types.Message):
+async def mainpage(message: types.Message):
     main_keyboard = [
         [types.KeyboardButton(text="Создание персонажа"),types.KeyboardButton(text="Просмотр моих персонажей")],
         [types.KeyboardButton(text="Помощь")]
