@@ -33,13 +33,13 @@ async def cmd_start(message: types.Message):
     
     message_text = f"С возвращением, {message.from_user.first_name}!\nБолее известный на ДнД поле как super_ultra_{message.from_user.first_name.lower()}_pro."
     user =  requests.get(url="http://localhost:9009/api/v1/auth/sign-in",params={"tg_id": message.from_user.id,"first_name": message.from_user.first_name})
-    print(user)
-    if user != []:
+    print(user,"    ",user.json()) #баг в том, что я отправлю get запрос, а оно не видит меня в базе данных
+    if user.json() != {}:
         pass
     else:
         register_user = requests.post(url="http://localhost:9009/api/v1/auth/sign-up",params=user_data)
         message_text = f"Приветствуем вас в нашем боте, {message.from_user.first_name}!\nТут вы можете создать персонажей, просмотреть их и многое другое!\nТак как вы новичок, то запишем вас как super_ultra_{message.from_user.first_name.lower()}_pro, надеюсь, вы не против! X)"    
-    #ошибка пофикшена X)
+    
     await message.answer(message_text,reply_markup=keyboard)
 
 @dp.message(F.text == "Создание персонажа")
@@ -62,7 +62,7 @@ async def create_char(message: types.Message):
 
     @dp.message(F.text == "Класс")
     async def races(message: types.Message):
-        keyboard = types.ReplyKeyboardMarkup(keyboard=kb_classes,resize_keyboard=True,input_field_placeholder="Выбери расу!")
+        keyboard = types.ReplyKeyboardMarkup(keyboard=kb_classes,resize_keyboard=True,input_field_placeholder="Выбери Класс!")
         await message.answer("Выбери класс!",reply_markup=keyboard)
     
     @dp.message(F.text == "Назад")
