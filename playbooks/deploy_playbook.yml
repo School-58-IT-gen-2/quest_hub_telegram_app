@@ -8,7 +8,7 @@
         version: main
 
     - name: Build Docker image
-      command: docker build -t quest_hub_app:0.0.2 /projects/dnd/quest_hub_telegram_app
+      command: docker build -t quest_hub_telegram_app:0.0.2 /projects/dnd/quest_hub_telegram_app
 
     - name: Stop old container
       command: docker compose -f /projects/dnd/quest_hub_telegram_app/docker-compose.yml down --remove-orphans
