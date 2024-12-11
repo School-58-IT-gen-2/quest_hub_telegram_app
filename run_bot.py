@@ -2,15 +2,25 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types,F
 from aiogram.filters.command import Command
+from aiogram.filters.state import State, StatesGroup
 from dotenv import load_dotenv
 import os
 import json
-import requests
+import httpx
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
+
+
+
+class Form(StatesGroup):
+    gender = State()
+    rac = State()
+    clas = State()
+
+
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
@@ -32,7 +42,7 @@ async def cmd_start(message: types.Message):
         }
     
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
-    user = requests.get(url="http://localhost:9009/api/v1/auth/sign-in",params={"tg_id": message.from_user.id,"first_name": message.from_user.first_name})
+    user = httpx.get(url="http://localhost:9009/api/v1/auth/sign-in",params={"tg_id": message.from_user.id,"first_name": message.from_user.first_name})
     await message.answer(message_text,reply_markup=keyboard)
 
 @dp.message(F.text == "Создание персонажа")
@@ -43,23 +53,36 @@ async def create_char(message: types.Message):
     ]
     kb_classes = [[types.KeyboardButton(text="Воин"),types.KeyboardButton(text="Маг"),types.KeyboardButton(text="Вор"),types.KeyboardButton(text="Друид"),types.KeyboardButton(text="Паладин")],
                 [types.KeyboardButton(text="Назад")]]
-    kb = [[types.KeyboardButton(text="Раса")],
-            [types.KeyboardButton(text="Класс")],
+    kb = [[types.KeyboardButton(text="Создать самому"),types.KeyboardButton(text="Пройти тест")],
             [types.KeyboardButton(text="Главная страница")]]
 
 
-    @dp.message(F.text == "Раса")
-    async def races(message: types.Message):
+    @dp.message(F.text == "Создать самому") # тут бует много страничек, так что пока скип
+    async def no_test_creation(message: types.Message):
         keyboard = types.ReplyKeyboardMarkup(keyboard=kb_races,resize_keyboard=True,input_field_placeholder="Выбери расу!")
         await message.answer("Выбери расу!",reply_markup=keyboard)
+        keyboard = types.ReplyKeyboardMarkup(keyboard=kb_classes,resize_keyboard=True,input_field_placeholder="Выбери расу!")
+        await message.answer("Выбери Класс!",reply_markup=keyboard)
 
-    @dp.message(F.text == "Класс")
-    async def races(message: types.Message):
-        keyboard = types.ReplyKeyboardMarkup(keyboard=kb_classes,resize_keyboard=True,input_field_placeholder="Выбери Класс!")
-        await message.answer("Выбери класс!",reply_markup=keyboard)
+    @dp.message(F.text == "Пройти тест")
+    async def with_test_creation(message: types.Message):
+        user_data = {'gender':"1",'rac':"1",'clas':"1"}
+        
+        await message.answer("Первый вопрос: вы хотите персонажа мужского или женского пола? (напишите просто М или Ж)")
+        
+        await message.answer("Второй вопрос: персонажа какой расы вы хотите? (пишите с большой буквы, пожалуйста, например, Дварф)")
+
+        await message.answer("Третий вопрос: персонажа какого класса вы хотите? (пишите с большой буквы, пожалуйста, например, Плут)")
+
+        print(user_data)
+        try:
+            user = httpx.post(url="http://localhost:8000/register",params=user_data)
+            await message.answer("Вы успешно создали персонажа!")
+        except:
+            await message.answer("Ошибка при создании персонажа!")
     
     @dp.message(F.text == "Назад")
-    async def races(message: types.Message):
+    async def back(message: types.Message):
         keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="И вот вы снова у начала...")
         await message.answer("Вы вернулись к началу создания персонажа.",reply_markup=keyboard)
 
