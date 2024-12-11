@@ -66,20 +66,21 @@ async def create_char(message: types.Message):
 
     @dp.message(F.text == "Пройти тест")
     async def with_test_creation(message: types.Message):
-        user_data = {'gender':"1",'rac':"1",'clas':"1"}
-        
-        await message.answer("Первый вопрос: вы хотите персонажа мужского или женского пола? (напишите просто М или Ж)")
-        
-        await message.answer("Второй вопрос: персонажа какой расы вы хотите? (пишите с большой буквы, пожалуйста, например, Дварф)")
+        user_data = {'gender':None,'rac':None,'clas':None}
+        await message.answer("""Для генерации персонажа, пожалуйста, ответьте на три вопроса (напишите все в одном сообщении через пробел)\n\nПервый вопрос: вы хотите персонажа мужского или женского пола? (напишите просто М или Ж)\n\nВторой вопрос: выберите расу персонажа (напишите только название расы с большой буквы, например Дварф)\n\nТретий вопрос: выберите класс персонажа (напишите только название класса с большой буквы, например Воин)""")
 
-        await message.answer("Третий вопрос: персонажа какого класса вы хотите? (пишите с большой буквы, пожалуйста, например, Плут)")
-
-        print(user_data)
-        try:
-            user = httpx.post(url="http://localhost:8000/register",params=user_data)
-            await message.answer("Вы успешно создали персонажа!")
-        except:
-            await message.answer("Ошибка при создании персонажа!")
+        @dp.message(F.text != "Пройти тест")
+        async def get_data(message: types.Message):
+            s = message.text.split(" ")
+            user_data['gender'] = s[0]
+            user_data['rac'] = s[1]
+            user_data['clas'] = s[2]   
+            try:
+                user = httpx.post(url="http://localhost:8000/register/",params=user_data)
+                print(user.json())
+                await message.answer(f"Вы успешно создали персонажа!")
+            except:
+                await message.answer("Ошибка при создании персонажа!")
     
     @dp.message(F.text == "Назад")
     async def back(message: types.Message):
