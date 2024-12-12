@@ -21,24 +21,24 @@ async def cmd_start(message: types.Message):
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=main_keyboard,resize_keyboard=True,input_field_placeholder="Велкам аур биутифул юзер, ви а глед ту си ю агейн") 
     user_data = {
-            "first_name": message.from_user.first_name,
-            "last_name": message.from_user.last_name,
+            "first_name": str(message.from_user.first_name),
+            "last_name": str(message.from_user.last_name),
             "role": "player",
-            "is_bot": message.from_user.is_bot,
-            "language_code": message.from_user.language_code,
+            "is_bot": bool(message.from_user.is_bot),
+            "language_code": str(message.from_user.language_code),
             "is_premium": False,
-            "username": message.from_user.username,
-            "age": 52,
-            "tg_id": message.from_user.id
+            "username": str(message.from_user.username),
+            "age": int(52),
+            "tg_id": str(message.from_user.id)
         }
     
     
 
 
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
-    user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]})
+    user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]},headers={"Content-Type": "application/json"})
     if int(user.status_code) == 400:
-        user = httpx.post(url="http://localhost:9009/api/v1/auth/user",json=user_data)
+        user = httpx.post(url="http://localhost:9009/api/v1/auth/user",data=json.dumps(user_data,ensure_ascii=False))
         message_text = "Приветствуем Вас в нашем боте! Ваш аккаунт был успешно создан. Теперь вы можете использовать все возможности нашего бота."
     await message.answer(message_text,reply_markup=keyboard)
 
@@ -58,6 +58,7 @@ async def view_profile(message: types.Message):
 
         @dp.message(F.text == "Да")
         async def delete_account_yes(message: types.Message):
+            httpx.delete(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":message.from_user.id})
             await message.answer("Аккаунт удален!")
 
         @dp.message(F.text == "Нет")
@@ -86,9 +87,9 @@ async def view_profile(message: types.Message):
             async def change_age(message: types.Message):
                 kb = [[types.KeyboardButton(text="Главная страница")]]
                 keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Менялка")
-                await message.answer("Вы уцспешно изменили возраст!",reply_markup=keyboard)
+                await message.answer("Вы успешно изменили возраст!",reply_markup=keyboard)
                 age = int(message.text)
-                print(age)
+                #httpx.put(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":message.from_user.id},data=json.dumps({"age":age}))
 
 
 @dp.message(F.text == "Назначить сессию")
