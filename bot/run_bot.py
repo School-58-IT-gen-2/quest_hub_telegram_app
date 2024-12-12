@@ -32,17 +32,42 @@ async def cmd_start(message: types.Message):
             "tg_id": message.from_user.id
         }
     
+    
+
+
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
-    """user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":message.from_user.id}).status_code()
-    print(user)"""
+    user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]})
+    if int(user.status_code) == 400:
+        user = httpx.post(url="http://localhost:9009/api/v1/auth/user",json=user_data)
+        message_text = "Приветствуем Вас в нашем боте! Ваш аккаунт был успешно создан. Теперь вы можете использовать все возможности нашего бота."
     await message.answer(message_text,reply_markup=keyboard)
 
 
 @dp.message(F.text == "Профиль")
 async def view_profile(message: types.Message):
-    kb = [[types.KeyboardButton(text="Изменить данные")],[types.KeyboardButton(text="Главная страница")]]
+    kb = [[types.KeyboardButton(text="Изменить данные"),types.KeyboardButton(text="Удалить аккаунт")],[types.KeyboardButton(text="Главная страница")]]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Ууууу, да у кого-то тут персонажи!")
     await message.answer("Тут профиль!",reply_markup=keyboard)
+
+
+    @dp.message(F.text == "Удалить аккаунт")
+    async def delete_account(message: types.Message):
+        kb = [[types.KeyboardButton(text="Да"),types.KeyboardButton(text="Нет")],[types.KeyboardButton(text="Главная страница")]]
+        keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Ууууу, да у кого-то тут персонажи!")
+        await message.answer("Вы уверены, что хотите удалить аккаунт? Это действие необратимо!",reply_markup=keyboard)
+
+        @dp.message(F.text == "Да")
+        async def delete_account_yes(message: types.Message):
+            await message.answer("Аккаунт удален!")
+
+        @dp.message(F.text == "Нет")
+        async def delete_account_no(message: types.Message):
+            kb = [
+                [types.KeyboardButton(text="Персонажи"),types.KeyboardButton(text="Профиль")],
+                [types.KeyboardButton(text="Помощь"),types.KeyboardButton(text="Назначить сессию")]
+            ]
+            keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Что же вы выберете?")
+            await message.answer("Аккаунт не удален!",keyboard=keyboard)
 
 
     @dp.message(F.text == "Изменить данные")
