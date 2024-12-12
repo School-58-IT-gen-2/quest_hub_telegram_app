@@ -21,19 +21,16 @@ async def cmd_start(message: types.Message):
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=main_keyboard,resize_keyboard=True,input_field_placeholder="Велкам аур биутифул юзер, ви а глед ту си ю агейн") 
     user_data = {
-            "first_name": str(message.from_user.first_name),
-            "last_name": str(message.from_user.last_name),
+            "first_name": message.from_user.first_name,
+            "last_name": message.from_user.last_name,
             "role": "player",
-            "is_bot": bool(message.from_user.is_bot),
-            "language_code": str(message.from_user.language_code),
-            "is_premium": False,
-            "username": str(message.from_user.username),
-            "age": int(52),
-            "tg_id": str(message.from_user.id)
-        }
-    
-    
-
+            "is_bot": message.from_user.is_bot,
+            "language_code": message.from_user.language_code,
+            "is_premium": message.from_user.is_premium,
+            "username": message.from_user.username,
+            "age": 0,
+            "tg_id": message.from_user.id
+        }    
 
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
     user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]},headers={"Content-Type": "application/json"})
