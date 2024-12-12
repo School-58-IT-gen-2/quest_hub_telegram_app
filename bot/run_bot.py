@@ -82,12 +82,21 @@ async def view_profile(message: types.Message):
             await message.answer("Введите новый возраст",reply_markup=keyboard)
             @dp.message(F.text != "Изменить возраст")
             async def change_age(message: types.Message):
+                put_data = {
+                    "first_name": message.from_user.first_name,
+                    "last_name": message.from_user.last_name,
+                    "role": "player",
+                    "is_bot": message.from_user.is_bot,
+                    "language_code": message.from_user.language_code,
+                    "is_premium": message.from_user.is_premium,
+                    "username": message.from_user.username,
+                    "age": int(message.text),
+                    "tg_id": message.from_user.id
+                }    
+                httpx.put(url="http://localhost:9009/api/v1/auth/user",json=put_data)
                 kb = [[types.KeyboardButton(text="Главная страница")]]
                 keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Менялка")
                 await message.answer("Вы успешно изменили возраст!",reply_markup=keyboard)
-                age = int(message.text)
-                #httpx.put(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":message.from_user.id},data=json.dumps({"age":age}))
-
 
 @dp.message(F.text == "Назначить сессию")
 async def set_session(message: types.Message):
@@ -96,7 +105,6 @@ async def set_session(message: types.Message):
           [types.KeyboardButton(text="Главная страница")]]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Сеся")
     await message.answer("Тут назначение сессии!",reply_markup=keyboard)
-
 
 @dp.message(F.text == "Персонажи")
 async def view_chars(message: types.Message):
