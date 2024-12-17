@@ -3,6 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.filters.command import Command
 from aiogram.filters.state import State, StatesGroup
+from aiogram.handlers import CallbackQueryHandler, InlineQueryHandler
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 import os
@@ -21,8 +22,8 @@ def main_menu_keyboard():
     ])
 
 def account_menu_keyboard():
-    return types.inline_keyboard_markup([
-        [types.inline_keyboard_button(text="Изменить данные", callback_data="change_profile")],[types.inline_keyboard_button(text="Удалить аккаунт", callback_data="delete_profile")],[types.inline_keyboard_button(text="Главная страница", callback_data="main_menu")]
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить данные", callback_data="change_profile")],[InlineKeyboardButton(text="Удалить аккаунт", callback_data="delete_profile")],[InlineKeyboardButton(text="Главная страница", callback_data="main_menu")]
     ])
 
 @dp.message(Command("start"))
@@ -55,15 +56,16 @@ async def main_menu(message: types.Message):
     kb = main_menu_keyboard()
     await message.answer("Главное меню", reply_markup=main_menu_keyboard())
 
-@router.callback_query(lambda q: q.data == 'profile')
+@dp.callback_query(lambda c: c.data == 'profile')
 async def profile(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_text(text="Тут профиль!", reply_markup=account_menu_keyboard())
 
-@router.callback_query(lambda q: q.data == 'main_menu')
+@router.callback_query(lambda c: c.data == 'main_menu')
 async def main_menu_query(callback_query: types.CallbackQuery):
+    print('=================================================\n=================================================\n=================================================')
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
+    await callback_query.message.edit_text(inline_message_id=callback_query.inline_message_id, text="Главное меню", reply_markup=main_menu_keyboard())
 
 
 @dp.message(F.text == "Профиль")
