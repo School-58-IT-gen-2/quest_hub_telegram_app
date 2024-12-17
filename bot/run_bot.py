@@ -1,8 +1,9 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, types,F
+from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.filters.command import Command
 from aiogram.filters.state import State, StatesGroup
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 import os
 import json
@@ -12,14 +13,20 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
+router = Router()
+
+def main_menu_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Персонажи", callback_data="chars")],[InlineKeyboardButton(text="Профиль", callback_data="profile")],[InlineKeyboardButton(text="Назначить сессию", callback_data="arrange_meeting")]
+    ])
+
+def account_menu_keyboard():
+    return types.inline_keyboard_markup([
+        [types.inline_keyboard_button(text="Изменить данные", callback_data="change_profile")],[types.inline_keyboard_button(text="Удалить аккаунт", callback_data="delete_profile")],[types.inline_keyboard_button(text="Главная страница", callback_data="main_menu")]
+    ])
 
 @dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    main_keyboard = [
-        [types.KeyboardButton(text="Персонажи"),types.KeyboardButton(text="Профиль")],
-        [types.KeyboardButton(text="Помощь"),types.KeyboardButton(text="Назначить сессию")]
-    ]
-    keyboard = types.ReplyKeyboardMarkup(keyboard=main_keyboard,resize_keyboard=True,input_field_placeholder="Велкам аур биутифул юзер, ви а глед ту си ю агейн") 
+async def start(message: types.Message):
     user_data = {
             "first_name": message.from_user.first_name,
             "last_name": message.from_user.last_name,
@@ -31,13 +38,32 @@ async def cmd_start(message: types.Message):
             "age": 0,
             "tg_id": message.from_user.id
         }    
-
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
     user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]},headers={"Content-Type": "application/json"})
     if int(user.status_code) == 400:
         user = httpx.post(url="http://localhost:9009/api/v1/auth/user",data=json.dumps(user_data,ensure_ascii=False))
         message_text = "Приветствуем Вас в нашем боте! Ваш аккаунт был успешно создан. Теперь вы можете использовать все возможности нашего бота."
-    await message.answer(message_text,reply_markup=keyboard)
+    await message.answer(message_text)
+    await main_menu(message)
+
+@dp.message(Command("help"))
+async def help(message: types.Message):
+    await message.answer("Тут помощь (возможно)!")
+
+@dp.message()
+async def main_menu(message: types.Message):
+    kb = main_menu_keyboard()
+    await message.answer("Главное меню", reply_markup=main_menu_keyboard())
+
+@router.callback_query(lambda q: q.data == 'profile')
+async def profile(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Тут профиль!", reply_markup=account_menu_keyboard())
+
+@router.callback_query(lambda q: q.data == 'main_menu')
+async def main_menu_query(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
 
 
 @dp.message(F.text == "Профиль")
@@ -225,13 +251,6 @@ async def view_chars(message: types.Message):
                 [types.KeyboardButton(text="Главная страница")]]
             keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Ууууу, да у кого-то тут персонажи!")
             await message.answer("Чтобы мы сделали персонажа за вас, выберете три характеристеки: пол, раса, класс",reply_markup=keyboard)
-            
-            
-@dp.message(F.text == "Помощь")
-async def help(message: types.Message):
-    kb = [[types.KeyboardButton(text="Главная страница")]]
-    keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Тут помощь Х)") 
-    await message.answer("Тут помощь (возможно)!",reply_markup=keyboard)
 
 @dp.message(F.text == "Главная страница")
 async def mainpage(message: types.Message):
