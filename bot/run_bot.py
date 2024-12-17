@@ -211,30 +211,22 @@ async def view_chars(message: types.Message):
                                types.KeyboardButton(text="13"),types.KeyboardButton(text="12"),
                                types.KeyboardButton(text="10"),types.KeyboardButton(text="8")]]
 
-
-
                     kb = [[types.KeyboardButton(text="Сила"),types.KeyboardButton(text="Ловкость")],
                           [types.KeyboardButton(text="Телосложение"),types.KeyboardButton(text="Интеллект")],
                           [types.KeyboardButton(text="Мудрость"),types.KeyboardButton(text="Харизма")]]
                     keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Выберете характеристику")
                     await message.answer("Выберете характеристику",reply_markup=keyboard)
-                    char_data["Stats"] = message.text
+                    
                     #пока без логики
         @dp.message(F.text == "Пройти тест")
         async def test(message: types.Message):
             user_data = {"gender":None,"rac":None,"clas":None}
-            kb = [[types.KeyboardButton(text="Главная страница")]]
+            kb = [[types.KeyboardButton(text="Пол"),types.KeyboardButton(text="Класс"),types.KeyboardButton(text="Раса")],
+                [types.KeyboardButton(text="Главная страница")]]
             keyboard = types.ReplyKeyboardMarkup(keyboard=kb,resize_keyboard=True,input_field_placeholder="Ууууу, да у кого-то тут персонажи!")
-            await message.answer("Чтобы пройти тест, Вам нужно ответить на три простых вопроса. Ответы запишите в одну строчку через пробел\n\nКакого пола будет ваш персонаж?(напишите только М или Ж)\n\nКакой расы будет ваш персонаж?(напишите расу с большой буквы, например, Дварф)\n\nКакого класса будет ваш персонаж?(напишите только название класса с большой буквы, например, Воин)",reply_markup=keyboard)
+            await message.answer("Чтобы мы сделали персонажа за вас, выберете три характеристеки: пол, раса, класс",reply_markup=keyboard)
             
-            @dp.message(F.text != "Пройти тест") # пока тут костыль
-            async def get_data(message: types.Message):
-                user_data["gender"] = message.text.split()[0]
-                user_data["rac"] = message.text.split()[1]
-                user_data["clas"] = message.text.split()[2]
-                await message.answer("Отлично! Ваш персонаж создан!",reply_markup=keyboard)
-
-
+            
 @dp.message(F.text == "Помощь")
 async def help(message: types.Message):
     kb = [[types.KeyboardButton(text="Главная страница")]]
