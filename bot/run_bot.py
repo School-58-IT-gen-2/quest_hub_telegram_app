@@ -56,7 +56,7 @@ async def main_menu(message: types.Message):
     kb = main_menu_keyboard()
     await message.answer("Главное меню", reply_markup=main_menu_keyboard())
 
-@dp.callback_query(lambda c: c.data == 'profile')
+@router.callback_query(lambda c: c.data == 'profile') #работает только раз и это фиаско!1!!1111111!!!!
 async def profile(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_text(text="Тут профиль!", reply_markup=account_menu_keyboard())
@@ -264,6 +264,7 @@ async def mainpage(message: types.Message):
     await message.answer("Вы на главной странице!",reply_markup=keyboard)
 
 async def main():
+    dp.include_router(router)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
