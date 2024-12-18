@@ -13,7 +13,7 @@ import httpx
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+bot = Bot(token=os.getenv("TEST_BOT_TOKEN"))
 dp = Dispatcher()
 router = Router()
 
@@ -89,11 +89,13 @@ async def delete_profile(callback_query: types.CallbackQuery):
     async def confirm_delete_profile(callback_query: types.CallbackQuery):
         await callback_query.answer()
         await callback_query.message.edit_text(text="Ваш аккаунт был успешно удален") #логику прикрутить
+        await asyncio.sleep(1.0)
         await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
     @router.callback_query(lambda c: c.data == 'no')
     async def cancel_delete_profile(callback_query: types.CallbackQuery):
         await callback_query.answer()
         await callback_query.message.edit_text(text="Вы отменили удаление аккаунта")
+        await asyncio.sleep(1.0)
         await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
 
 
