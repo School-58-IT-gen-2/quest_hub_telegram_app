@@ -7,13 +7,12 @@ from aiogram.handlers import CallbackQueryHandler, InlineQueryHandler
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 from all_keyboards import *
+from all_requests import *
 import os
-import json
-import httpx
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=os.getenv("TEST_BOT_TOKEN"))
+bot = Bot(token=os.getenv("TEST_BOT_TOKEN")) # при пул реквесте в development/main поменять на PRODUCTION_BOT_TOKEN
 dp = Dispatcher()
 router = Router()
 
@@ -34,10 +33,7 @@ async def start(message: types.Message):
             "tg_id": message.from_user.id
         }    
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
-    """user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]},headers={"Content-Type": "application/json"})
-    if int(user.status_code) == 400:
-        user = httpx.post(url="http://localhost:9009/api/v1/auth/user",data=json.dumps(user_data,ensure_ascii=False))
-        message_text = "Приветствуем Вас в нашем боте! Ваш аккаунт был успешно создан. Теперь вы можете использовать все возможности нашего бота."""
+    
     await message.answer(message_text)
     await main_menu(message)
 
@@ -58,7 +54,7 @@ async def profile(callback_query: types.CallbackQuery):
 @router.callback_query(lambda c: c.data == 'main_menu')
 async def main_menu_query(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(inline_message_id=callback_query.inline_message_id, text="Главное меню", reply_markup=main_menu_keyboard())
+    await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'characters')
 async def characters(callback_query: types.CallbackQuery):
@@ -98,6 +94,24 @@ async def delete_profile(callback_query: types.CallbackQuery):
         await asyncio.sleep(1.0)
         await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
 
+
+@router.callback_query(lambda c: c.data == 'create_character')
+async def choose_creation(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Выберете способ создания персонажа", reply_markup=how_to_create_character_keyboard())
+
+
+@router.callback_query(lambda c: c.data == 'create_by_myself')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Выберете класс персонажа", reply_markup=classes_keyboard())
+    # etc
+
+@router.callback_query(lambda c: c.data == 'auto_create')
+async def auto_create(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Выберете класс персонажа", reply_markup=classes_keyboard())
+    # etc
 
 
 

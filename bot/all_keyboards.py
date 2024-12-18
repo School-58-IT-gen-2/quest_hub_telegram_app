@@ -34,3 +34,32 @@ def how_to_create_character_keyboard():
 def change_user_data_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить возраст", callback_data="change_age")],[InlineKeyboardButton(text="Главная страница", callback_data="main_menu")]])
+
+
+def race_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Человек", callback_data="human"),InlineKeyboardButton(text="Эльф", callback_data="elf")],
+        [InlineKeyboardButton(text="Гном", callback_data="gnome"),InlineKeyboardButton(text="Полуорк", callback_data="halforc")],
+        [InlineKeyboardButton(text="Тифлинг", callback_data="tifling"),InlineKeyboardButton(text="Полурослик", callback_data="halfling")],
+        [InlineKeyboardButton(text="Драконорожденный", callback_data="dragonborn")],
+        [InlineKeyboardButton(text="Главная страница", callback_data="main_menu")] 
+    ])
+
+
+def classes_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Следопыт", callback_data="pathfinder"),InlineKeyboardButton(text="Варвар", callback_data="barbarian")],
+        [InlineKeyboardButton(text="Бард", callback_data="bard"),InlineKeyboardButton(text="Плут", callback_data="dodger")],
+        [InlineKeyboardButton(text="Друид", callback_data="druid"),InlineKeyboardButton(text="Колдун", callback_data="magician")],
+        [InlineKeyboardButton(text="Монах", callback_data="monk"),InlineKeyboardButton(text="Паладин", callback_data="paladin")],
+        [InlineKeyboardButton(text="Жрец", callback_data="priest"),InlineKeyboardButton(text="Маг", callback_data="warlock")],
+        [InlineKeyboardButton(text="Воин", callback_data="warrior"),InlineKeyboardButton(text="Волшебник", callback_data="wizzard")],
+        [InlineKeyboardButton(text="Главная страница", callback_data="main_menu")] 
+    ]) 
+
+
+def gender_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Мужской", callback_data="male"),InlineKeyboardButton(text="Женский", callback_data="female")],
+        [InlineKeyboardButton(text="Главная страница", callback_data="main_menu")]
+    ])
