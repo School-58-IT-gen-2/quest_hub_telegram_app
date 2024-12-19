@@ -15,7 +15,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 
-bot = Bot(token=os.getenv("TEST_BOT_TOKEN")) # при пул реквесте в development/main поменять на PRODUCTION_BOT_TOKEN
+bot = Bot(token=os.getenv("BOT_TOKEN")) # при пул реквесте в development/main поменять на PRODUCTION_BOT_TOKEN
 dp = Dispatcher()
 router = Router()
 
