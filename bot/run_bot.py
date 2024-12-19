@@ -4,23 +4,23 @@ from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.filters.command import Command
 from aiogram.filters.state import State, StatesGroup
 from aiogram.handlers import CallbackQueryHandler, InlineQueryHandler
-from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from dotenv import load_dotenv
-from all_keyboards import *
+from keyboards import *
+from requests import *
 import os
-import json
-import httpx
+
+
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+
+bot = Bot(token=os.getenv("TEST_BOT_TOKEN")) # при пул реквесте в development/main поменять на PRODUCTION_BOT_TOKEN
 dp = Dispatcher()
 router = Router()
 
 
-
-
-@dp.message(Command("start"))
+@router.message(Command("start"))
 async def start(message: types.Message):
     user_data = {
             "first_name": message.from_user.first_name,
@@ -34,36 +34,32 @@ async def start(message: types.Message):
             "tg_id": message.from_user.id
         }    
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
-    """user = httpx.get(url="http://localhost:9009/api/v1/auth/user",params={"tg_id":user_data["tg_id"]},headers={"Content-Type": "application/json"})
-    if int(user.status_code) == 400:
-        user = httpx.post(url="http://localhost:9009/api/v1/auth/user",data=json.dumps(user_data,ensure_ascii=False))
-        message_text = "Приветствуем Вас в нашем боте! Ваш аккаунт был успешно создан. Теперь вы можете использовать все возможности нашего бота."""
+    
     await message.answer(message_text)
     await main_menu(message)
 
-@dp.message(Command("help"))
+@router.message(Command("help"))
 async def help(message: types.Message):
     await message.answer("Тут помощь (возможно)!")
 
-@dp.message()
+@router.message()
 async def main_menu(message: types.Message):
-    kb = main_menu_keyboard()
-    await message.answer("Главное меню", reply_markup=main_menu_keyboard())
+    await message.answer_photo(photo='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048', text="Главное меню", reply_markup=main_menu_keyboard())
 
-@router.callback_query(lambda c: c.data == 'profile') #работает только раз и это фиаско!1!!1111111!!!!
+@router.callback_query(lambda c: c.data == 'profile') 
 async def profile(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Тут профиль!", reply_markup=account_menu_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Тут профиль!", reply_markup=account_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'main_menu')
 async def main_menu_query(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(inline_message_id=callback_query.inline_message_id, text="Главное меню", reply_markup=main_menu_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Главное меню", reply_markup=main_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'characters')
 async def characters(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Тут персонажи!", reply_markup=characters_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Тут персонажи!", reply_markup=characters_keyboard())
 
 @router.callback_query(lambda c: c.data == 'arrange_meeting')
 async def arrange_meeting(callback_query: types.CallbackQuery):
@@ -89,16 +85,57 @@ async def delete_profile(callback_query: types.CallbackQuery):
     async def confirm_delete_profile(callback_query: types.CallbackQuery):
         await callback_query.answer()
         await callback_query.message.edit_text(text="Ваш аккаунт был успешно удален") #логику прикрутить
+        await asyncio.sleep(1.0)
         await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
     @router.callback_query(lambda c: c.data == 'no')
     async def cancel_delete_profile(callback_query: types.CallbackQuery):
         await callback_query.answer()
         await callback_query.message.edit_text(text="Вы отменили удаление аккаунта")
+        await asyncio.sleep(1.0)
         await callback_query.message.edit_text(text="Главное меню", reply_markup=main_menu_keyboard())
 
+@router.callback_query(lambda c: c.data == 'create_character')
+async def choose_creation(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Выберете способ создания персонажа", reply_markup=how_to_create_character_keyboard())
+
+@router.callback_query(lambda c: c.data == 'create_by_myself')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_1())
+    # await callback_query.message.edit_text(text="Создание персонажа", reply_markup=char_list_keyboard_1())
+
+@router.callback_query(lambda c: c.data == 'page_1')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_1())
+    
+@router.callback_query(lambda c: c.data == 'page_2')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_2())
+
+@router.callback_query(lambda c: c.data == 'page_3')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_3())
+
+@router.callback_query(lambda c: c.data == 'page_4')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_4())
+
+@router.callback_query(lambda c: c.data == 'page_5')
+async def create_by_myself(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_5())
 
 
-
+@router.callback_query(lambda c: c.data == 'auto_create')
+async def auto_create(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Выберете класс персонажа", reply_markup=classes_keyboard())
+    # etc
 
 
 async def main():
