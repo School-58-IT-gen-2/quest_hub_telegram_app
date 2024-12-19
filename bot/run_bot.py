@@ -6,8 +6,8 @@ from aiogram.filters.state import State, StatesGroup
 from aiogram.handlers import CallbackQueryHandler, InlineQueryHandler
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
-from all_keyboards import *
-from all_requests import *
+from keyboards import *
+from requests import *
 import os
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +46,7 @@ async def main_menu(message: types.Message):
     kb = main_menu_keyboard()
     await message.answer("Главное меню", reply_markup=main_menu_keyboard())
 
-@router.callback_query(lambda c: c.data == 'profile') #работает только раз и это фиаско!1!!1111111!!!!
+@router.callback_query(lambda c: c.data == 'profile') 
 async def profile(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_text(text="Тут профиль!", reply_markup=account_menu_keyboard())
@@ -104,8 +104,14 @@ async def choose_creation(callback_query: types.CallbackQuery):
 @router.callback_query(lambda c: c.data == 'create_by_myself')
 async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Выберете класс персонажа", reply_markup=classes_keyboard())
-    # etc
+    await callback_query.message.edit_text(text="Выберете категорию создания (S - самое важное, E). Неотмеченные поля мы заполним сами", reply_markup=tier_list_keyboard())
+    @router.callback_query(lambda c: c.data == 'S')
+    async def tierS_s(callback_query: types.CallbackQuery):
+        await callback_query.answer()
+        await callback_query.message.edit_text(text="Вы выбрали самые главные параметры персонажа", reply_markup=s_tier_list_keyboard())
+    
+
+
 
 @router.callback_query(lambda c: c.data == 'auto_create')
 async def auto_create(callback_query: types.CallbackQuery):

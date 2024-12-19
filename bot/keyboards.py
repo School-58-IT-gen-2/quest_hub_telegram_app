@@ -63,3 +63,21 @@ def gender_keyboard():
         [InlineKeyboardButton(text="Мужской", callback_data="male"),InlineKeyboardButton(text="Женский", callback_data="female")],
         [InlineKeyboardButton(text="Главная страница", callback_data="main_menu")]
     ])
+
+
+
+def tier_list_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="S", callback_data="S"),InlineKeyboardButton(text="A", callback_data="A")],
+        [InlineKeyboardButton(text="B", callback_data="B"),InlineKeyboardButton(text="C", callback_data="C")],
+        [InlineKeyboardButton(text="D", callback_data="D"),InlineKeyboardButton(text="E", callback_data="E")],
+        [InlineKeyboardButton(text="Главная страница", callback_data="main_menu")]
+    ])
+
+
+def s_tier_list_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Пол персонажа", callback_data="gender"),InlineKeyboardButton(text="Имя", callback_data="name")],
+        [InlineKeyboardButton(text="Раса", callback_data="race"),InlineKeyboardButton(text="Класс", callback_data="class")],
+        [InlineKeyboardButton(text="Главная страница", callback_data="main_menu")]
+    ])
