@@ -44,32 +44,33 @@ async def help(message: types.Message):
 
 @router.message()
 async def main_menu(message: types.Message):
-    await message.answer_photo(photo='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048', text="Главное меню", reply_markup=main_menu_keyboard())
+    await message.answer_photo(photo='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048', caption="Главное меню", reply_markup=main_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'profile') 
 async def profile(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Тут профиль!", reply_markup=account_menu_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), caption="Тут профиль!", reply_markup=account_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'main_menu')
 async def main_menu_query(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Главное меню", reply_markup=main_menu_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), caption="Главное меню", reply_markup=main_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'characters')
 async def characters(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), text="Тут персонажи!", reply_markup=characters_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), caption="Тут персонажи!", reply_markup=characters_keyboard())
 
 @router.callback_query(lambda c: c.data == 'arrange_meeting')
 async def arrange_meeting(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Тут назначение сессии!", reply_markup=session_menu_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), caption="Тут сессии!", reply_markup=session_menu_keyboard())
 
 @router.callback_query(lambda c: c.data == 'change_profile')
 async def change_profile(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Выберете параметр, который хотите изменить", reply_markup=change_user_data_keyboard())
+    await callback_query.message.edit_media(media=InputMediaPhoto(media='https://armorclass.co/cdn/shop/articles/Boels_The_Magic_of_DD_How_Dungeons__Dragons_Works_e82dd415-fe67-43f6-b126-df05fd7e29fb.jpg?v=1695410885&width=2048'), caption="Тут изменение профиля!", reply_markup=change_profile())
+
 
 @router.callback_query(lambda c: c.data == 'change_age')
 async def change_age(callback_query: types.CallbackQuery):
@@ -130,13 +131,11 @@ async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_media(media=InputMediaPhoto(media='https://i.redd.it/ogbv27260cm21.jpg'), text="Создание персонажа", reply_markup=char_list_keyboard_5())
 
-
 @router.callback_query(lambda c: c.data == 'auto_create')
 async def auto_create(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_text(text="Выберете класс персонажа", reply_markup=classes_keyboard())
     # etc
-
 
 async def main():
     dp.include_router(router)
