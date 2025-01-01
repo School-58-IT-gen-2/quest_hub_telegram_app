@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 from keyboards import *
-from requests import *
+from requests_to_server import *
 from forms import Form
 
 
@@ -20,7 +20,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 
-bot = Bot(token=os.getenv("BOT_TOKEN")) # при пул реквесте в development/main поменять на PRODUCTION_BOT_TOKEN
+bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 router = Router()
 
@@ -39,7 +39,7 @@ async def start(message: types.Message):
             "tg_id": message.from_user.id
         }    
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
-    
+    await create_user(user_data)
     await message.answer(message_text)
     await main_menu(message)
 
@@ -86,6 +86,18 @@ async def change_age(callback_query: types.CallbackQuery, state: FSMContext):
 async def set_user_age(message: types.Message, state: FSMContext):
     # Здесь должно записыаться в БД
     await message.answer_photo(photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard, caption=f"Ваш возраст изменен на {message.text}")
+    user_data = {
+            "first_name": message.from_user.first_name,
+            "last_name": message.from_user.last_name,
+            "role": "player",
+            "is_bot": message.from_user.is_bot,
+            "language_code": message.from_user.language_code,
+            "is_premium": message.from_user.is_premium,
+            "username": message.from_user.username,
+            "age": int(message.text),
+            "tg_id": message.from_user.id
+        }
+    await update_user(user_data) 
     await state.clear()
 
 @router.callback_query(lambda c: c.data == 'delete_profile')
@@ -99,7 +111,9 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
     await callback_query.answer()
     await state.clear()
     if callback_query.data == 'yes':
-        await callback_query.message.edit_caption(caption="Ваш аккаунт был успешно удален") # логику прикрутить
+        await delete_user(tg_id = callback_query.from_user.id)
+        await callback_query.message.edit_caption(caption="Ваш аккаунт был успешно удален")
+
     elif callback_query.data == 'no':
         await callback_query.message.edit_caption(caption="Вы отменили удаление аккаунта")
     await asyncio.sleep(1.0)
