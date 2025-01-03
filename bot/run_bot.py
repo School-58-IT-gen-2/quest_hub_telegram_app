@@ -169,7 +169,6 @@ async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_caption(reply_markup=char_list_keyboard_5)
 
-
 @router.callback_query(lambda c: c.data == 'auto_create')
 async def auto_create(callback_query: types.CallbackQuery):
     await callback_query.answer()

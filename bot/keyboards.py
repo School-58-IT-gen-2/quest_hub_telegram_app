@@ -89,8 +89,6 @@ char_list_keyboard_5 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
-
-
 def build_char_kb(chars):
     names = [[i["name"], str(i["id"])] for i in chars]
     inline_kb = []
