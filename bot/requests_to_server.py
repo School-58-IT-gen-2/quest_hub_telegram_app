@@ -16,7 +16,6 @@ async def create_user(user_data: dict):
 
 async def update_user(user_data: dict):
     filtered_user_data = {k: v for k, v in user_data.items() if k in ["tg_id","first_name","username","age","last_name","is_premium","language_code"]} #фильтруем только на нужные значения
-    print(filtered_user_data)
     response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/profiles/user",json=filtered_user_data)
     return response.json()
 
