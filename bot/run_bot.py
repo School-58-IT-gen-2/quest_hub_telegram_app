@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import json
 
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.filters.command import Command
@@ -38,7 +39,7 @@ async def start(message: types.Message):
             "age": 0,
             "tg_id": message.from_user.id
         }    
-    message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный на ДнД поле как {message.from_user.username}."
+    message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный в Фаэруне как {message.from_user.username}."
     await create_user(user_data)
     await message.answer(message_text)
     await main_menu(message)
@@ -65,11 +66,24 @@ async def characters(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup=characters_keyboard)
 
+@router.callback_query(lambda c: c.data == 'view_characters')
+async def view_characters(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    user_chars = await get_char_by_user_id(callback_query.from_user.id)
+    await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup=build_char_kb(user_chars))
+    await state.set_state(Form.view_character)
+
+@router.callback_query(Form.view_character)
+async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await state.clear()
+    char = await get_char_by_char_id(int(callback_query.data))
+    await callback_query.message.answer(text=f"```\n{json.dumps(char[0],indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") #придумать красивый вывод
+
 @router.callback_query(lambda c: c.data == 'arrange_meeting')
 async def arrange_meeting(callback_query: types.CallbackQuery):
-    pass
-    # await callback_query.answer()
-    # await callback_query.message.edit_text(text="Тут назначение сессии!", reply_markup=session_menu_keyboard)
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Тут назначение сессии!", reply_markup=session_menu_keyboard)
 
 @router.callback_query(lambda c: c.data == 'change_profile')
 async def change_profile(callback_query: types.CallbackQuery):

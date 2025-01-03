@@ -88,3 +88,13 @@ char_list_keyboard_5 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⏪", callback_data="page_1"), InlineKeyboardButton(text="⬅️", callback_data="page_4"), InlineKeyboardButton(text="➡️", callback_data="null_data"), InlineKeyboardButton(text="⏩", callback_data="null_data")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
+
+
+
+def build_char_kb(chars):
+    names = [[i["name"], str(i["id"])] for i in chars]
+    inline_kb = []
+    for i in names:
+        inline_kb.append([InlineKeyboardButton(text=i[0], callback_data=i[1])])
+    inline_kb.append([InlineKeyboardButton(text="Главная меню", callback_data="main_menu")])
+    return InlineKeyboardMarkup(inline_keyboard=inline_kb)
