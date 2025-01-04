@@ -83,7 +83,7 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
 @router.callback_query(lambda c: c.data == 'arrange_meeting')
 async def arrange_meeting(callback_query: types.CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Тут назначение сессии!", reply_markup=session_menu_keyboard)
+    await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/profile.png")), reply_markup=session_menu_keyboard)
 
 @router.callback_query(lambda c: c.data == 'change_profile')
 async def change_profile(callback_query: types.CallbackQuery):
@@ -170,10 +170,12 @@ async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.message.edit_caption(reply_markup=char_list_keyboard_5)
 
 @router.callback_query(lambda c: c.data == 'auto_create')
-async def auto_create(callback_query: types.CallbackQuery):
+async def auto_create(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await callback_query.message.edit_caption(reply_markup=classes_keyboard)
-    # etc
+
+
+
 
 async def main():
     dp.include_router(router)
