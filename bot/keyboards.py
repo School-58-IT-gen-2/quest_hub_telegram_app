@@ -29,23 +29,23 @@ change_user_data_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить возраст", callback_data="change_age")],[InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]])
 
 races_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Человек", callback_data="human"),InlineKeyboardButton(text="Эльф", callback_data="elf")],
-        [InlineKeyboardButton(text="Гном", callback_data="gnome"),InlineKeyboardButton(text="Полуорк", callback_data="halforc")],
-        [InlineKeyboardButton(text="Тифлинг", callback_data="tifling"),InlineKeyboardButton(text="Полурослик", callback_data="halfling")],
-        [InlineKeyboardButton(text="Драконорожденный", callback_data="dragonborn")],
+        [InlineKeyboardButton(text="Человек", callback_data="Человек"),InlineKeyboardButton(text="Эльф", callback_data="Эльф")],
+        [InlineKeyboardButton(text="Гном", callback_data="Гном"),InlineKeyboardButton(text="Полуорк", callback_data="Полуорк")],
+        [InlineKeyboardButton(text="Тифлинг", callback_data="Тифлинг"),InlineKeyboardButton(text="Полурослик", callback_data="Полурослик")],
+        [InlineKeyboardButton(text="Драконорожденный", callback_data="Драконорожденный")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
     ])
 
 classes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Следопыт", callback_data="pathfinder"),InlineKeyboardButton(text="Варвар", callback_data="barbarian"),InlineKeyboardButton(text="Бард", callback_data="bard")],
-        [InlineKeyboardButton(text="Плут", callback_data="dodger"),InlineKeyboardButton(text="Друид", callback_data="druid"),InlineKeyboardButton(text="Колдун", callback_data="magician")],
-        [InlineKeyboardButton(text="Монах", callback_data="monk"),InlineKeyboardButton(text="Паладин", callback_data="paladin"),InlineKeyboardButton(text="Жрец", callback_data="priest"),InlineKeyboardButton(text="Маг", callback_data="warlock")],
-        [InlineKeyboardButton(text="Воин", callback_data="warrior"),InlineKeyboardButton(text="Волшебник", callback_data="wizzard")],
+        [InlineKeyboardButton(text="Следопыт", callback_data="Следопыт"),InlineKeyboardButton(text="Варвар", callback_data="Варвар"),InlineKeyboardButton(text="Бард", callback_data="Бард")],
+        [InlineKeyboardButton(text="Плут", callback_data="Плут"),InlineKeyboardButton(text="Друид", callback_data="Друид"),InlineKeyboardButton(text="Колдун", callback_data="Колдун")],
+        [InlineKeyboardButton(text="Монах", callback_data="Монах"),InlineKeyboardButton(text="Паладин", callback_data="Паладин"),InlineKeyboardButton(text="Жрец", callback_data="Жрец"),InlineKeyboardButton(text="Маг", callback_data="Маг")],
+        [InlineKeyboardButton(text="Воин", callback_data="Воин"),InlineKeyboardButton(text="Волшебник", callback_data="Волшебник")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
     ]) 
 
 gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Мужской", callback_data="male"),InlineKeyboardButton(text="Женский", callback_data="female")],
+        [InlineKeyboardButton(text="Мужской", callback_data="М"),InlineKeyboardButton(text="Женский", callback_data="Ж")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
