@@ -148,7 +148,23 @@ async def create_by_myself(callback_query: types.CallbackQuery):
 async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await callback_query.message.edit_caption(reply_markup=char_list_keyboard_1)
-    
+
+@router.callback_query(lambda c: c.data == 'gender')
+async def write_gender(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.edit_caption(reply_markup=gender_keyboard)
+    await state.set_state(Form.enter_char_gender)
+
+@router.callback_query(Form.enter_char_gender)
+async def write_gender_in_state(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await state.update_data({"gender": callback_query.data})
+    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_1)
+    print(await state.get_data())
+    await state.clear() # в такой же форме пишем остальные 28 функций :)
+
+
+
 @router.callback_query(lambda c: c.data == 'page_2')
 async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.answer()
@@ -173,29 +189,28 @@ async def create_by_myself(callback_query: types.CallbackQuery):
 async def auto_create(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await callback_query.message.edit_caption(reply_markup=classes_keyboard)
-    await state.set_state(Form.enter_char_class)
+    await state.set_state(Form.auto_char_class)
 
-@router.callback_query(Form.enter_char_class)
+@router.callback_query(Form.auto_char_class)
 async def enter_char_class(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await state.update_data({"clas": callback_query.data})
     await callback_query.message.edit_caption(reply_markup=races_keyboard)
-    await state.set_state(Form.enter_char_race)
+    await state.set_state(Form.auto_char_race)
 
-@router.callback_query(Form.enter_char_race)
+@router.callback_query(Form.auto_char_race)
 async def enter_char_race(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await state.update_data({"rac": callback_query.data})
     await callback_query.message.edit_caption(reply_markup=gender_keyboard)
-    await state.set_state(Form.enter_char_gender)
+    await state.set_state(Form.auto_char_gender)
 
-@router.callback_query(Form.enter_char_gender)
+@router.callback_query(Form.auto_char_gender)
 async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await state.update_data({"gender": callback_query.data})
-    response = await auto_create_char(state.get_data())
-    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") # у рнд все легло, поэтому хз работает ли
-
+    response = await auto_create_char(await state.get_data())
+    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") 
     
 
 

@@ -29,10 +29,10 @@ change_user_data_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить возраст", callback_data="change_age")],[InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]])
 
 races_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Человек", callback_data="Человек"),InlineKeyboardButton(text="Эльф", callback_data="Эльф")],
-        [InlineKeyboardButton(text="Гном", callback_data="Гном"),InlineKeyboardButton(text="Полуорк", callback_data="Полуорк")],
-        [InlineKeyboardButton(text="Тифлинг", callback_data="Тифлинг"),InlineKeyboardButton(text="Полурослик", callback_data="Полурослик")],
-        [InlineKeyboardButton(text="Драконорожденный", callback_data="Драконорожденный")],
+        [InlineKeyboardButton(text="Дварф", callback_data="Дварф"),InlineKeyboardButton(text="Эльф", callback_data="Эльф")],
+        [InlineKeyboardButton(text="Полурослик", callback_data="хз что тут писать, пока не работает"),InlineKeyboardButton(text="Человек", callback_data="Человек")],
+        [InlineKeyboardButton(text="Драконорожденный", callback_data="Драконорожденный"),InlineKeyboardButton(text="Гном", callback_data="Гном")],
+        [InlineKeyboardButton(text="Полуэльф", callback_data="Полуэльф"),InlineKeyboardButton(text="Полуорк", callback_data="Полуорк"),InlineKeyboardButton(text="Тифлинг", callback_data="Тифлинг")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
     ])
 
@@ -45,7 +45,7 @@ classes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ]) 
 
 gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Мужской", callback_data="М"),InlineKeyboardButton(text="Женский", callback_data="Ж")],
+        [InlineKeyboardButton(text="Мужской", callback_data="M"),InlineKeyboardButton(text="Женский", callback_data="F")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
@@ -54,6 +54,7 @@ char_list_keyboard_1 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Раса", callback_data="race"),InlineKeyboardButton(text="Класс", callback_data="class")],
         [InlineKeyboardButton(text="Очки здоровья", callback_data="hp"),InlineKeyboardButton(text="Скорость", callback_data="speed")],
         [InlineKeyboardButton(text="⏪", callback_data="null_data"), InlineKeyboardButton(text="⬅️", callback_data="null_data"), InlineKeyboardButton(text="➡️", callback_data="page_2"), InlineKeyboardButton(text="⏩", callback_data="page_5")],
+        [InlineKeyboardButton(text="Заполните за меня остальное", callback_data="complete_creating")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
@@ -62,6 +63,7 @@ char_list_keyboard_2 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Спасиброски способности", callback_data="ability_saving_throws"),InlineKeyboardButton(text="Спасброски от смерти", callback_data="death_saving_throws")],
         [InlineKeyboardButton(text="Снаряжение", callback_data="weapons_and_equipment"),InlineKeyboardButton(text="Мировозрение", callback_data="allignment")],
         [InlineKeyboardButton(text="⏪", callback_data="page_1"), InlineKeyboardButton(text="⬅️", callback_data="page_1"),InlineKeyboardButton(text="➡️", callback_data="page_3"), InlineKeyboardButton(text="⏩", callback_data="page_5")],
+        [InlineKeyboardButton(text="Заполните за меня остальное", callback_data="complete_creating")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
@@ -70,6 +72,7 @@ char_list_keyboard_3 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Атаки и урон", callback_data="attacks_and_damage"),InlineKeyboardButton(text="Опыт", callback_data="experience")],
         [InlineKeyboardButton(text="Черты и способности", callback_data="traits_and_abilities"),InlineKeyboardButton(text="Заклинания и магия", callback_data="spells")],
         [InlineKeyboardButton(text="⏪", callback_data="page_1"), InlineKeyboardButton(text="⬅️", callback_data="page_2"), InlineKeyboardButton(text="➡️", callback_data="page_4"), InlineKeyboardButton(text="⏩", callback_data="page_5")],
+        [InlineKeyboardButton(text="Заполните за меня остальное", callback_data="complete_creating")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
@@ -78,6 +81,7 @@ char_list_keyboard_4 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Ценности", callback_data="valuables"),InlineKeyboardButton(text="Языки", callback_data="languages")],
         [InlineKeyboardButton(text="Вмешательство", callback_data="interference"),InlineKeyboardButton(text="Преимущества", callback_data="advantages")],
         [InlineKeyboardButton(text="⏪", callback_data="page_1"), InlineKeyboardButton(text="⬅️", callback_data="page_3"), InlineKeyboardButton(text="➡️", callback_data="page_5"), InlineKeyboardButton(text="⏩", callback_data="page_5")],
+        [InlineKeyboardButton(text="Заполните за меня остальное", callback_data="complete_creating")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
@@ -86,6 +90,7 @@ char_list_keyboard_5 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Отношения с персонажами", callback_data="npc_relations"),InlineKeyboardButton(text="Дневник", callback_data="diary")],
         [InlineKeyboardButton(text="Заметки", callback_data="notes")],
         [InlineKeyboardButton(text="⏪", callback_data="page_1"), InlineKeyboardButton(text="⬅️", callback_data="page_4"), InlineKeyboardButton(text="➡️", callback_data="null_data"), InlineKeyboardButton(text="⏩", callback_data="null_data")],
+        [InlineKeyboardButton(text="Заполните за меня остальное", callback_data="complete_creating")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
