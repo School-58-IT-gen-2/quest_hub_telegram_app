@@ -163,8 +163,6 @@ async def write_gender_in_state(callback_query: types.CallbackQuery, state: FSMC
     print(await state.get_data())
     await state.clear() # в такой же форме пишем остальные 28 функций :)
 
-
-
 @router.callback_query(lambda c: c.data == 'page_2')
 async def create_by_myself(callback_query: types.CallbackQuery):
     await callback_query.answer()
@@ -212,10 +210,6 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     response = await auto_create_char(await state.get_data())
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") 
     
-
-
-
-
 async def main():
     dp.include_router(router)
     await dp.start_polling(bot)
