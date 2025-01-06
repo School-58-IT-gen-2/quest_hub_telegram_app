@@ -30,7 +30,7 @@ change_user_data_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 
 races_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Дварф", callback_data="Дварф"),InlineKeyboardButton(text="Эльф", callback_data="Эльф")],
-        [InlineKeyboardButton(text="Полурослик", callback_data="хз что тут писать, пока не работает"),InlineKeyboardButton(text="Человек", callback_data="Человек")],
+        [InlineKeyboardButton(text="Полурослик", callback_data="Полурослик"),InlineKeyboardButton(text="Человек", callback_data="Человек")],
         [InlineKeyboardButton(text="Драконорожденный", callback_data="Драконорожденный"),InlineKeyboardButton(text="Гном", callback_data="Гном")],
         [InlineKeyboardButton(text="Полуэльф", callback_data="Полуэльф"),InlineKeyboardButton(text="Полуорк", callback_data="Полуорк"),InlineKeyboardButton(text="Тифлинг", callback_data="Тифлинг")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
