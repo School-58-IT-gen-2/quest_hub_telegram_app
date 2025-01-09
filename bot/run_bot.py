@@ -77,7 +77,12 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await state.clear()
     char = await get_char_by_char_id(int(callback_query.data))
-    await callback_query.message.answer(text=f"```\n{json.dumps(char[0],indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") #придумать красивый вывод
+    await callback_query.message.answer(text=f"```\n{json.dumps(char[0],indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=change_or_delete_character) 
+
+@router.callback_query(lambda c: c.data == 'back')
+async def back(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await callback_query.message.delete()
 
 @router.callback_query(lambda c: c.data == 'arrange_meeting')
 async def arrange_meeting(callback_query: types.CallbackQuery):
@@ -93,12 +98,16 @@ async def change_profile(callback_query: types.CallbackQuery):
 async def change_age(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await callback_query.message.edit_caption(caption="Введите ваш возраст")
+    await state.update_data({"message_id": callback_query.message.message_id})
     await state.set_state(Form.get_user_age)
 
 @router.message(Form.get_user_age)
-async def set_user_age(message: types.Message, state: FSMContext):
+async def set_user_age(message: types.Message, state: FSMContext, bot: Bot):
     # Здесь должно записыаться в БД
-    await message.answer_photo(photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard, caption=f"Ваш возраст изменен на {message.text}")
+    message_id = await state.get_data()
+    age = int(message.text)
+    await message.delete()
+    await bot.edit_message_media(chat_id=message.chat.id,message_id=message_id["message_id"],media=InputMediaPhoto(media=FSInputFile("assets/main_menu.png")), reply_markup=main_menu_keyboard)
     user_data = {
             "first_name": message.from_user.first_name,
             "last_name": message.from_user.last_name,
@@ -107,7 +116,7 @@ async def set_user_age(message: types.Message, state: FSMContext):
             "language_code": message.from_user.language_code,
             "is_premium": message.from_user.is_premium,
             "username": message.from_user.username,
-            "age": int(message.text),
+            "age": age,
             "tg_id": message.from_user.id
         }
     await update_user(user_data) 
@@ -130,6 +139,7 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
     elif callback_query.data == 'no':
         await callback_query.message.edit_caption(caption="Вы отменили удаление аккаунта")
     await asyncio.sleep(1.0)
+    await callback_query.message.delete()
     await main_menu(callback_query.message)
 
 @router.callback_query(lambda c: c.data == 'create_character')
@@ -157,6 +167,7 @@ async def enter_char_race(callback_query: types.CallbackQuery, state: FSMContext
 async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     await state.update_data({"gender": callback_query.data})
+    await state.update_data({"message_id": callback_query.message.message_id})
     response = await auto_create_char(await state.get_data())
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next) 
     await state.clear()
@@ -169,11 +180,13 @@ async def discard_character(callback_query: types.CallbackQuery,state: FSMContex
     await state.set_state(Form.discard_character)
 
 @router.callback_query(Form.discard_character)
-async def discard_character(callback_query: types.CallbackQuery, state: FSMContext):
+async def discard_character(callback_query: types.CallbackQuery, state: FSMContext,bot: Bot):
     await callback_query.answer()
     await state.clear()
     if callback_query.data == 'yes':
         await callback_query.message.delete()
+        message_id = await state.get_data()
+        await bot.edit_message_media(chat_id=callback_query.message.chat.id,message_id=message_id["message_id"],media=InputMediaPhoto(media=FSInputFile("assets/main_menu.png")), reply_markup=main_menu_keyboard)
     else:
         text = callback_query.message.text
         await callback_query.message.edit_text(text=f"{text}\n\nВы отменили удаление персонажа",reply_markup=what_do_next)
@@ -189,6 +202,11 @@ async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
         response.pop("id")# разобраться чо ничо не фурычит (рнд + Вова)
 
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown")
+
+@router.callback_query(lambda c: c.data == 'update_character')
+async def update_character(callback_query: types.CallbackQuery,state: FSMContext):
+    await callback_query.answer()
+    
     
 
 async def main():

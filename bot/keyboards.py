@@ -47,14 +47,21 @@ gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 
 what_do_next = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Сохранить персонажа", callback_data="save_character")],
-        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="change_character")],
+        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
         [InlineKeyboardButton(text="Удалить персонажа", callback_data="discard_character")],
     ])
+
+change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
+        [InlineKeyboardButton(text="Удалить персонажа", callback_data="discard_character")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")]
+    ])
+
 
 async def build_char_kb(chars):
     names = [[i["name"], str(i["id"])] for i in chars]
     inline_kb = []
     for i in names:
         inline_kb.append([InlineKeyboardButton(text=i[0], callback_data=i[1])])
-    inline_kb.append([InlineKeyboardButton(text="Главная меню", callback_data="main_menu")])
+    inline_kb.append([InlineKeyboardButton(text="Главное меню", callback_data="main_menu")])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb)
