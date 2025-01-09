@@ -79,6 +79,11 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
     char = await get_char_by_char_id(int(callback_query.data))
     await callback_query.message.answer(text=f"```\n{json.dumps(char[0],indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=change_or_delete_character) 
 
+@router.callback_query(lambda c: c.data == 'back')
+async def get_back(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.delete()
+    await state.set_state(Form.view_character)
 
 @router.callback_query(lambda c: c.data == 'arrange_meeting')
 async def arrange_meeting(callback_query: types.CallbackQuery):
@@ -145,14 +150,14 @@ async def choose_creation(callback_query: types.CallbackQuery,state: FSMContext)
 @router.callback_query(Form.auto_char_class)
 async def enter_char_class(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await state.update_data({"clas": callback_query.data})
+    await state.update_data({"character_class": callback_query.data})
     await callback_query.message.edit_caption(caption="Выберете расу вашего персонажа:",reply_markup=races_keyboard)
     await state.set_state(Form.auto_char_race)
 
 @router.callback_query(Form.auto_char_race)
 async def enter_char_race(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await state.update_data({"rac": callback_query.data})
+    await state.update_data({"race": callback_query.data})
     await callback_query.message.edit_caption(caption="Выберете пол вашего персонажа:",reply_markup=gender_keyboard)
     await state.set_state(Form.auto_char_gender)
 
@@ -164,23 +169,34 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     response["user_id"] = callback_query.from_user.id
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next) 
     await state.clear()
+    await state.update_data({"created_message_id": callback_query.message.message_id})
+    
 
 @router.callback_query(lambda c: c.data == 'discard_character')
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
     text = callback_query.message.text
-    await callback_query.message.edit_text(text=f"{text}\n\nВы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
+    await callback_query.message.edit_text(text=f"```{text}```\n\nВы действительно хотите удалить персонажа?",parse_mode="Markdown", reply_markup=yes_or_no_keyboard)
     await state.set_state(Form.discard_character)
+    
 
 @router.callback_query(Form.discard_character)
-async def discard_character(callback_query: types.CallbackQuery, state: FSMContext,bot: Bot):
+async def discard_character(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await state.clear()
     if callback_query.data == 'yes':
-        await callback_query.message.delete()
+        created_message_id = await state.get_data()
+        print(created_message_id)
+        created_message_id = created_message_id["created_message_id"]
+        now_message_id = callback_query.message.message_id
+        if now_message_id - 1 == created_message_id:
+            await callback_query.message.delete()
+            await state.clear()
+        else:
+            await callback_query.message.answer_photo(photo=FSInputFile("assets/main_menu.png"),reply_markup=main_menu_keyboard)
+            await state.update_data({"created_message_id": callback_query.message.message_id})
     else:
         text = callback_query.message.text
-        await callback_query.message.edit_text(text=f"{text}\n\nВы отменили удаление персонажа",reply_markup=what_do_next)
+        await callback_query.message.edit_text(text=f"```{text}```\n\nВы отменили удаление персонажа",parse_mode="Markdown",reply_markup=what_do_next)
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
@@ -208,8 +224,12 @@ async def char_name(message: types.Message,state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     char["name"] = name
+    created_message_id = await state.get_data()
+    created_message_id = created_message_id["created_message_id"]
     await message.answer(text=f"Ваш персонаж после правок:\n```\n{json.dumps(char,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next)
     await state.clear()
+    await state.update_data({"created_message_id": created_message_id})
+
 
 @router.callback_query(lambda c: c.data == 'char_age')
 async def enter_char_age(callback_query: types.CallbackQuery,state: FSMContext):
@@ -224,8 +244,11 @@ async def char_age(message: types.Message,state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     char["age"] = age
+    created_message_id = await state.get_data()
+    created_message_id = created_message_id["created_message_id"]
     await message.answer(text=f"Ваш персонаж после правок:\n```\n{json.dumps(char,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next)   
     await state.clear()
+    await state.update_data({"created_message_id": created_message_id})
     
 @router.callback_query(lambda c: c.data == 'char_surname')
 async def enter_char_surname(callback_query: types.CallbackQuery,state: FSMContext):
@@ -239,8 +262,11 @@ async def char_surname(message: types.Message,state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     char["surname"] = surname
+    created_message_id = await state.get_data()
+    created_message_id = created_message_id["created_message_id"]
     await message.answer(text=f"Ваш персонаж после правок:\n```\n{json.dumps(char,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next)
     await state.clear()
+    await state.update_data({"created_message_id": created_message_id})
 
 
 async def main():

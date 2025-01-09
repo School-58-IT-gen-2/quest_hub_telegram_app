@@ -41,7 +41,7 @@ classes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ]) 
 
 gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Мужской", callback_data="M"),InlineKeyboardButton(text="Женский", callback_data="F")],
+        [InlineKeyboardButton(text="Мужской", callback_data="M"),InlineKeyboardButton(text="Женский", callback_data="W")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
@@ -53,7 +53,7 @@ what_do_next = InlineKeyboardMarkup(inline_keyboard=[
 
 change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
-        [InlineKeyboardButton(text="Удалить персонажа", callback_data="discard_character")],
+        [InlineKeyboardButton(text="Удалить персонажа", callback_data="delete_character")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]
     ])
 
