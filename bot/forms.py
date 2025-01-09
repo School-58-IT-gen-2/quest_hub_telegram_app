@@ -9,3 +9,6 @@ class Form(StatesGroup):
     auto_char_class = State()
     auto_char_race = State()
     auto_char_gender = State()
+    char_name = State()
+    char_age = State()
+    char_surname = State()
