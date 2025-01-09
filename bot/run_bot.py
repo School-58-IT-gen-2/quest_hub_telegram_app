@@ -41,8 +41,7 @@ async def start(message: types.Message):
         }    
     message_text = f"Добро пожаловать, {message.from_user.first_name}!\nБолее известный в Фаэруне как {message.from_user.username}."
     await create_user(user_data)
-    await message.answer(message_text)
-    await main_menu(message)
+    await message.answer_photo(caption=message_text,photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
 
 @router.message(Command("help"))
 async def help(message: types.Message):
@@ -70,7 +69,7 @@ async def characters(callback_query: types.CallbackQuery):
 async def view_characters(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     user_chars = await get_char_by_user_id(callback_query.from_user.id)
-    await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup=build_char_kb(user_chars))
+    await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup = await build_char_kb(user_chars))
     await state.set_state(Form.view_character)
 
 @router.callback_query(Form.view_character)
@@ -134,59 +133,10 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
     await main_menu(callback_query.message)
 
 @router.callback_query(lambda c: c.data == 'create_character')
-async def choose_creation(callback_query: types.CallbackQuery):
+async def choose_creation(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/char_create.png")))
-    await callback_query.message.edit_caption(caption="Выберете способ создания персонажа",  reply_markup=how_to_create_character_keyboard)
-
-@router.callback_query(lambda c: c.data == 'create_by_myself')
-async def create_by_myself(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_1)
-
-@router.callback_query(lambda c: c.data == 'page_1')
-async def create_by_myself(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_1)
-
-@router.callback_query(lambda c: c.data == 'gender')
-async def write_gender(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=gender_keyboard)
-    await state.set_state(Form.enter_char_gender)
-
-@router.callback_query(Form.enter_char_gender)
-async def write_gender_in_state(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_query.answer()
-    await state.update_data({"gender": callback_query.data})
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_1)
-    print(await state.get_data())
-    await state.clear() # в такой же форме пишем остальные 28 функций :)
-
-@router.callback_query(lambda c: c.data == 'page_2')
-async def create_by_myself(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_2)
-
-@router.callback_query(lambda c: c.data == 'page_3')
-async def create_by_myself(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_3)
-
-@router.callback_query(lambda c: c.data == 'page_4')
-async def create_by_myself(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_4)
-
-@router.callback_query(lambda c: c.data == 'page_5')
-async def create_by_myself(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=char_list_keyboard_5)
-
-@router.callback_query(lambda c: c.data == 'auto_create')
-async def auto_create(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_query.answer()
-    await callback_query.message.edit_caption(reply_markup=classes_keyboard)
+    await callback_query.message.edit_caption(caption="Ответьте на три вопроса, а мы заполним все остальное! :)",  reply_markup=classes_keyboard)
     await state.set_state(Form.auto_char_class)
 
 @router.callback_query(Form.auto_char_class)
@@ -208,8 +158,39 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     await state.update_data({"gender": callback_query.data})
     response = await auto_create_char(await state.get_data())
-    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") 
+    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next) 
+    await state.clear()
+
+@router.callback_query(lambda c: c.data == 'discard_character')
+async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
+    await callback_query.answer()
+    text = callback_query.message.text
+    await callback_query.message.edit_text(text=f"{text}\n\nВы действительно хотите удалить персонаж?", reply_markup=yes_or_no_keyboard)
+    await state.set_state(Form.discard_character)
+
+@router.callback_query(Form.discard_character)
+async def discard_character(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await state.clear()
+    if callback_query.data == 'yes':
+        await callback_query.message.delete()
+    else:
+        text = callback_query.message.text
+        await callback_query.message.edit_text(text=f"{text}\n\nВы отменили удаление персонажа",reply_markup=what_do_next)
+
+@router.callback_query(lambda c: c.data == 'save_character')
+async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
+    await callback_query.answer()
+    char = json.loads(callback_query.message.text)
+    response = await create_char(char)
+    if "error" not in response.keys():
+        response["user_id"] = callback_query.from_user.id
+        response["lvl"] = 0
+        response.pop("id")# разобраться чо ничо не фурычит (рнд + Вова)
+
+    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown")
     
+
 async def main():
     dp.include_router(router)
     await dp.start_polling(bot)
