@@ -43,6 +43,14 @@ async def start(message: types.Message):
     await create_user(user_data)
     await message.answer_photo(caption=message_text,photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
 
+async def clear_chat(message: types.Message, bot: Bot):
+    for i in range(message.message_id-25,message.message_id+1):
+        try:
+            await bot.delete_message(chat_id=message.chat.id, message_id=i)
+        except:
+            pass
+        
+
 @router.message(Command("help"))
 async def help(message: types.Message):
     await message.answer("Тут помощь (возможно)!")
@@ -78,6 +86,9 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
     await state.clear()
     char = await get_char_by_char_id(int(callback_query.data))
     await callback_query.message.answer(text=f"```\n{json.dumps(char[0],indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=change_or_delete_character) 
+    await state.update_data({"created_message_id": callback_query.message.message_id})
+    await state.update_data({"char": char[0]})
+
 
 @router.callback_query(lambda c: c.data == 'back')
 async def get_back(callback_query: types.CallbackQuery, state: FSMContext):
@@ -170,18 +181,18 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next) 
     await state.clear()
     await state.update_data({"created_message_id": callback_query.message.message_id})
+    await state.update_data({"char" : response})
     
-
 @router.callback_query(lambda c: c.data == 'discard_character')
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
-    text = callback_query.message.text
+    text = await state.get_data()
+    text = json.dumps(text["char"],indent=2, ensure_ascii=False)
     await callback_query.message.edit_text(text=f"```{text}```\n\nВы действительно хотите удалить персонажа?",parse_mode="Markdown", reply_markup=yes_or_no_keyboard)
     await state.set_state(Form.discard_character)
     
-
 @router.callback_query(Form.discard_character)
-async def discard_character(callback_query: types.CallbackQuery, state: FSMContext):
+async def discard_character(callback_query: types.CallbackQuery, state: FSMContext, bot: Bot):
     await callback_query.answer()
     if callback_query.data == 'yes':
         created_message_id = await state.get_data()
@@ -192,6 +203,7 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
             await callback_query.message.delete()
             await state.clear()
         else:
+            await clear_chat(callback_query.message, bot)
             await callback_query.message.answer_photo(photo=FSInputFile("assets/main_menu.png"),reply_markup=main_menu_keyboard)
             await state.update_data({"created_message_id": callback_query.message.message_id})
     else:
@@ -201,14 +213,17 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
-    char = json.loads(callback_query.message.text)
+    char = await state.get_data()
+    char = char["char"]
+    char = json.loads(char)
     response = await create_char(char)
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown")
 
 @router.callback_query(lambda c: c.data == 'update_character')
 async def update_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
-    text = callback_query.message.text.replace('```\n', '').replace('\n```', '').replace("Ваш персонаж после правок:","")
+    text = await state.get_data()
+    text = json.dumps(text["char"],indent=2, ensure_ascii=False)
     await state.update_data({"char": json.loads(text)})
     await callback_query.message.edit_reply_markup(reply_markup=change_character)
 
@@ -229,6 +244,7 @@ async def char_name(message: types.Message,state: FSMContext):
     await message.answer(text=f"Ваш персонаж после правок:\n```\n{json.dumps(char,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next)
     await state.clear()
     await state.update_data({"created_message_id": created_message_id})
+    await state.update_data({"char" : char})
 
 
 @router.callback_query(lambda c: c.data == 'char_age')
@@ -249,6 +265,7 @@ async def char_age(message: types.Message,state: FSMContext):
     await message.answer(text=f"Ваш персонаж после правок:\n```\n{json.dumps(char,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next)   
     await state.clear()
     await state.update_data({"created_message_id": created_message_id})
+    await state.update_data({"char" : char})
     
 @router.callback_query(lambda c: c.data == 'char_surname')
 async def enter_char_surname(callback_query: types.CallbackQuery,state: FSMContext):
@@ -267,6 +284,7 @@ async def char_surname(message: types.Message,state: FSMContext):
     await message.answer(text=f"Ваш персонаж после правок:\n```\n{json.dumps(char,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next)
     await state.clear()
     await state.update_data({"created_message_id": created_message_id})
+    await state.update_data({"char" : char})
 
 
 async def main():
