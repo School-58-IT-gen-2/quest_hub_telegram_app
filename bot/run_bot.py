@@ -55,8 +55,8 @@ async def clear_chat(message: types.Message, bot: Bot):
 async def help(message: types.Message):
     await message.answer("Тут помощь (возможно)!")
 
-async def main_menu(message: types.Message):
-    await message.answer_photo(photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
+async def main_menu(message: types.Message, text: str):
+    await message.answer_photo(caption=text,photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
 
 @router.callback_query(lambda c: c.data == 'profile') 
 async def profile(callback_query: types.CallbackQuery):
@@ -88,6 +88,40 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.message.answer(text=f"```\n{json.dumps(char[0],indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=change_or_delete_character) 
     await state.update_data({"created_message_id": callback_query.message.message_id})
     await state.update_data({"char": char[0]})
+
+@router.callback_query(lambda c: c.data == 'put_character')
+async def put_character(callback_query: types.CallbackQuery,state: FSMContext, bot: Bot):
+    await callback_query.answer()
+    char = await state.get_data()
+    char = char["char"]
+    await update_char(char, char["id"])
+    await clear_chat(callback_query.message, bot)
+    await main_menu(callback_query.message,text="")
+    await callback_query.message.edit_caption(caption="Ваш персонаж успешно обновлён!", reply_markup=main_menu_keyboard)
+    
+@router.callback_query(lambda c: c.data == 'delete_character')
+async def delete_character(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Вы уверены в своих действиях?", reply_markup=yes_or_no_keyboard)
+    await state.set_state(Form.delete_character_confirm)
+
+@router.callback_query(Form.delete_character_confirm)
+async def delete_character_confirm(callback_query: types.CallbackQuery, state: FSMContext, bot: Bot):
+    await callback_query.answer()
+    char = await state.get_data()
+    char = char["char"]
+    if callback_query.data == "yes":
+        print(123123123)
+        await callback_query.message.edit_text(text="Вы удалили персонажа")
+        await asyncio.sleep(1)
+        await delete_char(char["id"])
+        await clear_chat(callback_query.message, bot)
+        await main_menu(callback_query.message,text="Вы жестоко удалили вашего персонажа!")
+    if callback_query.data == "no":
+        await callback_query.message.edit_text(text="Вы отменили удаление персонажа")
+        await asyncio.sleep(1)
+        await clear_chat(callback_query.message, bot)
+        await main_menu(callback_query.message,text="Вы помиловали вашего персонажа от удаления!")
 
 
 @router.callback_query(lambda c: c.data == 'back')
@@ -138,18 +172,21 @@ async def delete_profile(callback_query: types.CallbackQuery, state: FSMContext)
     await state.set_state(Form.delete_profile_confirm)
 
 @router.callback_query(Form.delete_profile_confirm)
-async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSMContext):
+async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSMContext,bot : Bot):
     await callback_query.answer()
     await state.clear()
     if callback_query.data == 'yes':
         await delete_user(tg_id = callback_query.from_user.id)
         await callback_query.message.edit_caption(caption="Ваш аккаунт был успешно удален")
-
+        await asyncio.sleep(1.0)
+        await clear_chat(callback_query.message, bot)
+        await callback_query.message.answer(text="Ваши данные успешно удалены. Для того чтобы продолжить пользоваться ботом нажмите /start")
     elif callback_query.data == 'no':
         await callback_query.message.edit_caption(caption="Вы отменили удаление аккаунта")
-    await asyncio.sleep(1.0)
-    await callback_query.message.delete()
-    await main_menu(callback_query.message)
+        await asyncio.sleep(1.0)
+        await callback_query.message.delete()
+        await main_menu(callback_query.message,text="")
+    
 
 @router.callback_query(lambda c: c.data == 'create_character')
 async def choose_creation(callback_query: types.CallbackQuery,state: FSMContext):
@@ -188,7 +225,7 @@ async def discard_character(callback_query: types.CallbackQuery,state: FSMContex
     await callback_query.answer()
     text = await state.get_data()
     text = json.dumps(text["char"],indent=2, ensure_ascii=False)
-    await callback_query.message.edit_text(text=f"```{text}```\n\nВы действительно хотите удалить персонажа?",parse_mode="Markdown", reply_markup=yes_or_no_keyboard)
+    await callback_query.message.edit_text(text=f"```json\n{text}```\n\nВы действительно хотите удалить персонажа?",parse_mode="Markdown", reply_markup=yes_or_no_keyboard)
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
@@ -215,7 +252,6 @@ async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
     char = await state.get_data()
     char = char["char"]
-    char = json.loads(char)
     response = await create_char(char)
     await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown")
 
