@@ -15,6 +15,7 @@ from pathlib import Path
 from keyboards import *
 from requests_to_server import *
 from forms import Form
+from converter import convert_json_to_char_info
 
 
 load_dotenv()
@@ -111,7 +112,6 @@ async def delete_character_confirm(callback_query: types.CallbackQuery, state: F
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == "yes":
-        print(123123123)
         await callback_query.message.edit_text(text="Вы удалили персонажа")
         await asyncio.sleep(1)
         await delete_char(char["id"])
@@ -215,7 +215,8 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     await state.update_data({"gender": callback_query.data})
     response = await auto_create_char(await state.get_data())
     response["user_id"] = callback_query.from_user.id
-    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown",reply_markup=what_do_next) 
+    await callback_query.message.delete()
+    await callback_query.message.answer(text=convert_json_to_char_info(response),parse_mode="MarkdownV2",reply_markup=what_do_next)
     await state.clear()
     await state.update_data({"created_message_id": callback_query.message.message_id})
     await state.update_data({"char" : response})
@@ -223,9 +224,7 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
 @router.callback_query(lambda c: c.data == 'discard_character')
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
-    text = await state.get_data()
-    text = json.dumps(text["char"],indent=2, ensure_ascii=False)
-    await callback_query.message.edit_text(text=f"```json\n{text}```\n\nВы действительно хотите удалить персонажа?",parse_mode="Markdown", reply_markup=yes_or_no_keyboard)
+    await callback_query.message.edit_text(text="Вы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
@@ -233,19 +232,18 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     if callback_query.data == 'yes':
         created_message_id = await state.get_data()
-        print(created_message_id)
         created_message_id = created_message_id["created_message_id"]
         now_message_id = callback_query.message.message_id
         if now_message_id - 1 == created_message_id:
             await callback_query.message.delete()
+            await main_menu(callback_query.message, text="")
             await state.clear()
         else:
             await clear_chat(callback_query.message, bot)
             await callback_query.message.answer_photo(photo=FSInputFile("assets/main_menu.png"),reply_markup=main_menu_keyboard)
             await state.update_data({"created_message_id": callback_query.message.message_id})
     else:
-        text = callback_query.message.text
-        await callback_query.message.edit_text(text=f"```{text}```\n\nВы отменили удаление персонажа",parse_mode="Markdown",reply_markup=what_do_next)
+        await callback_query.message.edit_text(text="Вы отменили удаление персонажа",reply_markup=what_do_next)
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):

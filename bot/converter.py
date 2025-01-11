@@ -1,5 +1,3 @@
-import asyncio
-
 TRANSLATIONS = {
     "type": "Тип",
     "damage": "Урон",
@@ -48,6 +46,15 @@ def translate_stat(stat):
     }
     return stat_translations.get(stat, stat.capitalize())
 
+def tg_text_convert(text: str) -> str:
+    restricted_symbols = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+    for i in restricted_symbols:
+        text = text.replace(i, '\\' + i)
+    return text
+
+def align_text(text: list, offset: int) -> str:
+    return f"{text[0]}:" + ' ' * (offset - len(text[0])) + str(text[1])
+
 def format_weapons_and_armor(data):
     """Formats weapons and armor data into a readable text response with translation."""
     card = ""
@@ -55,24 +62,23 @@ def format_weapons_and_armor(data):
     # Форматирование оружия и снаряжения
     if "weapons_and_equipment" in data:
         weapons_and_equipment = data["weapons_and_equipment"]
-        card += f"*🛡️ Амуниция:*\n"
+        card += f"*_Амуниция:_*\n```Амуниция\n"
         for name, details in weapons_and_equipment.items():
-            card += f"  - *{name}:*\n"
+            card += f"{name}:\n"
             for key, value in details.items():
                 if isinstance(value, list):
                     value = ", ".join(value)
                 # Преобразуем типы данных
-                card += f"    - {translate_key(key)}: {value}\n"
+                card += align_text([translate_key(key), value], 22) + "\n"
             card += "\n"
     else:
-        card += "*🛡️ Амуниция: Нет данных*\n"
+        card += "*_Амуниция: Нет данных_*\n"
 
     # Форматирование брони
     if "armor" in data:
         armor = data["armor"]
-        card += ""
         for name, details in armor.items():
-            card += f"  - *{name}:*\n"
+            card += f"{name}:\n"
             for key, value in details.items():
                 if key == "dex_bonus":
                     value = "Да" if value else "Нет"
@@ -80,63 +86,64 @@ def format_weapons_and_armor(data):
                     value = "Да" if value else "Нет"
                 if isinstance(value, list):
                     value = ", ".join(value)
-                card += f"    - {translate_key(key)}: {value}\n"
+                card += align_text([translate_key(key), value], 22) + "\n"
             card += "\n"
     else:
         card += ""
-
+    card += "```"
     return card
 
-
-async def convert_json_to_char_info(data: dict):
+def convert_json_to_char_info(data: dict):
     card = (
-        f"*Карточка персонажа:*\n"
-        f"👤 *Имя:* {data.get('name', 'Безымянный')} {data.get('surname', '')}\n"
-        f"🎂 *Возраст:* {data.get('age', 'Не указан')}\n"
-        f"🌍 *Раса:* {data.get('race', 'Не указана')}\n"
-        f"⚔️ *Класс:* {data.get('character_class', 'Не указан')}\n"
-        f"🌟 *Уровень:* {data.get('lvl', 'Не указан')}\n"
-        f"💓 *Хиты:* {data.get('hp', 'Не указаны')}\n"
-        f"👁️ *Пассивное восприятие:* {data.get('passive_perception', 'Не указано')}\n"
-        f"🏃 *Скорость:* {data.get('speed', 'Не указана')} футов\n"
-        f"⚖️ *Мировоззрение:* {data.get('worldview', 'Не указано')}\n"
-        f"🎲 *Инициатива:* {data.get('initiative', 'Не указана')}\n"
-        f"💡 *Вдохновение:* {'Да' if data.get('inspiration', False) else 'Нет'}\n"
-        f"*📜 Предыстория:*\n{data.get('backstory', 'Нет данных')}\n\n"
+        f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
+        "*_Основные параметры:_*\n"
+        "```Параметры\n"
+        f"{align_text(['Возраст', data.get('age', 'Не указан')], 22)}\n"
+        f"{align_text(['Раса', data.get('race', 'Не указана')], 22)}\n"
+        f"{align_text(['Класс', data.get('character_class', 'Не указан')], 22)}\n"
+        f"{align_text(['Уровень', data.get('lvl', 'Не указан')], 22)}\n"
+        f"{align_text(['Хиты', data.get('hp', 'Не указаны')], 22)}\n"
+        f"{align_text(['Пассивное восприятие', data.get('passive_perception', 'Не указано')], 22)}\n"
+        f"{align_text(['Скорость', data.get('speed', 'Не указана')], 22)} футов\n"
+        f"{align_text(['Мировоззрение', data.get('worldview', 'Не указано')], 22)}\n"
+        f"{align_text(['Инициатива', data.get('initiative', 'Не указана')], 22)}\n"
+        f"{align_text(['Вдохновение', 'Да' if data.get('inspiration', False) else 'Нет'], 22)}"
+        "```\n\n"
+        f"*_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}\n\n\n"
     )
 
     if 'stats' in data:
         stats = data['stats']
-        card += "*⚙️ Характеристики:*\n"
-        card += "\n".join(f"  - {translate_stat(stat)}: {value}" for stat, value in stats.items())  # Перевод характеристик
+        card += "*_Характеристики:_*\n```Характеристики\n"
+        card += "\n".join(align_text([translate_stat(stat), value], 22) for stat, value in stats.items()) + "```"
 
     if 'stat_modifiers' in data:
         modifiers = data['stat_modifiers']
-        card += "\n\n*📊 Модификаторы характеристик:*\n"
-        card += "\n".join(f"  - {translate_stat(stat)}: {value}" for stat, value in modifiers.items())
+        card += "\n\n*_Модификаторы характеристик:_*\n```Модификаторы\n"
+        card += "\n".join(align_text([translate_stat(stat), value], 22) for stat, value in modifiers.items()) + "```"
 
     if 'skills' in data:
         skills = data['skills']
-        card += "\n\n*🛠️ Навыки:*\n"
-        card += ", ".join(skills)
+        card += "\n\n*_Навыки:_*\n"
+        card += "\n".join(f">\U00002022 {skill}" for skill in skills)
 
     if 'traits_and_abilities' in data:
         traits = data['traits_and_abilities']
-        card += "\n\n*🧬 Черты и способности:*\n"
-        card += "\n".join(f"  - *{trait}:* {desc}" for trait, desc in traits.items())
+        card += "\n\n\n*_Черты и способности:_*\n"
+        card += "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc)}" for trait, desc in traits.items())
 
     # Форматируем оружие и броню перед инвентарём
-    card += f'\n\n {format_weapons_and_armor(data)}'
+    card += f'\n\n\n {format_weapons_and_armor(data)}'
 
     # Инвентарь
     if 'inventory' in data:
         inventory = data['inventory']
-        card += "\n\n*🎒 Инвентарь:*\n"
-        card += ", ".join(inventory)
+        card += "\n\n*_Инвентарь:_*\n"
+        card += "\n".join(f">\U00002022 {tg_text_convert(item)}" for item in inventory)
 
     if 'languages' in data:
         languages = data['languages']
-        card += "\n\n*🗣️ Языки:*\n"
-        card += ", ".join(languages)
+        card += "\n\n\n*_Языки:_*\n"
+        card += "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in languages)
         
     return card
