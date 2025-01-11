@@ -208,8 +208,19 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     await callback_query.answer()
     await state.update_data({"gender": callback_query.data})
     response = await auto_create_char(await state.get_data())
-    await callback_query.message.answer(text=f"```\n{json.dumps(response,indent=2, ensure_ascii=False)}\n```",parse_mode="Markdown") 
-    
+    print('==============================')
+    print(response)
+    print('==============================')
+    await callback_query.message.edit_caption(caption=character_info(response), parse_mode="MarkdownV2") 
+
+async def character_info(char_info: dict) -> str:
+    print('==============================')
+    return (
+        f"*_{char_info['name']} {char_info['surname']}_*\n\n"
+        f"*_Карточка персонажа:_*\n"
+        f"*Раса:* {char_info['race']}"
+    )
+
 async def main():
     dp.include_router(router)
     await dp.start_polling(bot)

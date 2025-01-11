@@ -39,8 +39,8 @@ races_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 classes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Следопыт", callback_data="Следопыт"),InlineKeyboardButton(text="Варвар", callback_data="Варвар"),InlineKeyboardButton(text="Бард", callback_data="Бард")],
         [InlineKeyboardButton(text="Плут", callback_data="Плут"),InlineKeyboardButton(text="Друид", callback_data="Друид"),InlineKeyboardButton(text="Колдун", callback_data="Колдун")],
-        [InlineKeyboardButton(text="Монах", callback_data="Монах"),InlineKeyboardButton(text="Паладин", callback_data="Паладин"),InlineKeyboardButton(text="Жрец", callback_data="Жрец"),InlineKeyboardButton(text="Маг", callback_data="Маг")],
-        [InlineKeyboardButton(text="Воин", callback_data="Воин"),InlineKeyboardButton(text="Волшебник", callback_data="Волшебник")],
+        [InlineKeyboardButton(text="Монах", callback_data="Монах"),InlineKeyboardButton(text="Паладин", callback_data="Паладин"),InlineKeyboardButton(text="Жрец", callback_data="Жрец")],
+        [InlineKeyboardButton(text="Маг", callback_data="Маг"),InlineKeyboardButton(text="Воин", callback_data="Воин"),InlineKeyboardButton(text="Волшебник", callback_data="Волшебник")],
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
     ]) 
 
@@ -50,7 +50,7 @@ gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 char_list_keyboard_1 = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Пол персонажа", callback_data="gender"),InlineKeyboardButton(text="Имя", callback_data="name")],
+        [InlineKeyboardButton(text="Имя", callback_data="name"),InlineKeyboardButton(text="Пол персонажа", callback_data="gender")],
         [InlineKeyboardButton(text="Раса", callback_data="race"),InlineKeyboardButton(text="Класс", callback_data="class")],
         [InlineKeyboardButton(text="Очки здоровья", callback_data="hp"),InlineKeyboardButton(text="Скорость", callback_data="speed")],
         [InlineKeyboardButton(text="⏪", callback_data="null_data"), InlineKeyboardButton(text="⬅️", callback_data="null_data"), InlineKeyboardButton(text="➡️", callback_data="page_2"), InlineKeyboardButton(text="⏩", callback_data="page_5")],
@@ -94,7 +94,7 @@ char_list_keyboard_5 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
     ])
 
-def build_char_kb(chars):
+async def build_char_kb(chars):
     names = [[i["name"], str(i["id"])] for i in chars]
     inline_kb = []
     for i in names:
