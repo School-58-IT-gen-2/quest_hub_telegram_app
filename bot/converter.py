@@ -30,12 +30,12 @@ TRANSLATIONS = {
     "backstory": "Предыстория"
 }
 
-def translate_key(key):
-    """Translates a key using the TRANSLATIONS dictionary."""
+def translate_key(key: str) -> str:
+    """Переводит название параметра на русский"""
     return TRANSLATIONS.get(key, key)
 
-def translate_stat(stat):
-    """Translates stat keys into Russian."""
+def translate_stat(stat: str) -> str:
+    """Переводит название характеристики на русский"""
     stat_translations = {
         'strength': 'Сила',
         'dexterity': 'Ловкость',
@@ -47,19 +47,20 @@ def translate_stat(stat):
     return stat_translations.get(stat, stat.capitalize())
 
 def tg_text_convert(text: str) -> str:
+    """Форматирует текст для отправки в ТГ"""
     restricted_symbols = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
     for i in restricted_symbols:
         text = text.replace(i, '\\' + i)
     return text
 
 def align_text(text: list, offset: int) -> str:
+    """Выравнивает текст в 2 колонки"""
     return f"{text[0]}:" + ' ' * (offset - len(text[0])) + str(text[1])
 
-def format_weapons_and_armor(data):
-    """Formats weapons and armor data into a readable text response with translation."""
+def format_weapons_and_armor(data: dict) -> str:
+    """Форматирует вывод амуниции и брони"""
     card = ""
 
-    # Форматирование оружия и снаряжения
     if "weapons_and_equipment" in data:
         weapons_and_equipment = data["weapons_and_equipment"]
         card += f"*_Амуниция:_*\n```Амуниция\n"
@@ -68,13 +69,11 @@ def format_weapons_and_armor(data):
             for key, value in details.items():
                 if isinstance(value, list):
                     value = ", ".join(value)
-                # Преобразуем типы данных
                 card += align_text([translate_key(key), value], 22) + "\n"
             card += "\n"
     else:
         card += "*_Амуниция: Нет данных_*\n"
 
-    # Форматирование брони
     if "armor" in data:
         armor = data["armor"]
         for name, details in armor.items():
@@ -93,7 +92,8 @@ def format_weapons_and_armor(data):
     card += "```"
     return card
 
-def convert_json_to_char_info(data: dict):
+def convert_json_to_char_info(data: dict) -> str:
+    """Создает лист персонажа по словарю с данными"""
     card = (
         f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
         "*_Основные параметры:_*\n"
@@ -132,10 +132,8 @@ def convert_json_to_char_info(data: dict):
         card += "\n\n\n*_Черты и способности:_*\n"
         card += "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc)}" for trait, desc in traits.items())
 
-    # Форматируем оружие и броню перед инвентарём
     card += f'\n\n\n {format_weapons_and_armor(data)}'
 
-    # Инвентарь
     if 'inventory' in data:
         inventory = data['inventory']
         card += "\n\n*_Инвентарь:_*\n"
