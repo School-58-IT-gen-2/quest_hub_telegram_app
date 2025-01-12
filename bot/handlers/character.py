@@ -87,28 +87,37 @@ async def choose_creation(callback_query: types.CallbackQuery,state: FSMContext)
 @router.callback_query(Form.auto_char_class)
 async def enter_char_class(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await state.update_data({"character_class": callback_query.data})
-    await callback_query.message.edit_caption(caption="Выберете расу вашего персонажа:",reply_markup=races_keyboard)
-    await state.set_state(Form.auto_char_race)
+    if callback_query.data == 'main_menu':
+        await main_menu_query(callback_query)
+    else:
+        await state.update_data({"character_class": callback_query.data})
+        await callback_query.message.edit_caption(caption="Выберете расу вашего персонажа:",reply_markup=races_keyboard)
+        await state.set_state(Form.auto_char_race)
 
 @router.callback_query(Form.auto_char_race)
 async def enter_char_race(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await state.update_data({"race": callback_query.data})
-    await callback_query.message.edit_caption(caption="Выберете пол вашего персонажа:",reply_markup=gender_keyboard)
-    await state.set_state(Form.auto_char_gender)
+    if callback_query.data == 'main_menu':
+        await main_menu_query(callback_query)
+    else:
+        await state.update_data({"race": callback_query.data})
+        await callback_query.message.edit_caption(caption="Выберете пол вашего персонажа:",reply_markup=gender_keyboard)
+        await state.set_state(Form.auto_char_gender)
 
 @router.callback_query(Form.auto_char_gender)
 async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await state.update_data({"gender": callback_query.data})
-    response = await auto_create_char(await state.get_data())
-    response["user_id"] = callback_query.from_user.id
-    await callback_query.message.delete()
-    await callback_query.message.answer(text=convert_json_to_char_info(response),parse_mode="MarkdownV2",reply_markup=what_do_next)
-    await state.clear()
-    await state.update_data({"created_message_id": callback_query.message.message_id})
-    await state.update_data({"char" : response})
+    if callback_query.data == 'main_menu':
+        await main_menu_query(callback_query)
+    else:
+        await state.update_data({"gender": callback_query.data})
+        response = await auto_create_char(await state.get_data())
+        response["user_id"] = callback_query.from_user.id
+        await callback_query.message.delete()
+        await callback_query.message.answer(text=convert_json_to_char_info(response),parse_mode="MarkdownV2",reply_markup=what_do_next)
+        await state.clear()
+        await state.update_data({"created_message_id": callback_query.message.message_id})
+        await state.update_data({"char" : response})
     
 @router.callback_query(lambda c: c.data == 'discard_character')
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
