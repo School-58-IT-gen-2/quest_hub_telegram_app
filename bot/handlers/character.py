@@ -36,9 +36,10 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
         await main_menu_query(callback_query)
     else:
         char = await get_char_by_char_id(int(callback_query.data))
+        char = char[0]
         await callback_query.message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character) 
         await state.update_data({"created_message_id": callback_query.message.message_id})
-        await state.update_data({"char": char[0]})
+        await state.update_data({"char": char})
 
 @router.callback_query(lambda c: c.data == 'put_character')
 async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
