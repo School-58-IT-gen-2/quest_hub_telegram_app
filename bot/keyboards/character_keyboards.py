@@ -27,19 +27,22 @@ gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 what_do_next = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Сохранить изменения", callback_data="put_character")],
+        [InlineKeyboardButton(text="Сохранить персонажа", callback_data="save_character")],
         [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
         [InlineKeyboardButton(text="Удалить персонажа", callback_data="discard_character")],
     ])
 
 change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
+        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="put_character")],
         [InlineKeyboardButton(text="Удалить персонажа", callback_data="delete_character")],
-        [InlineKeyboardButton(text="Назад", callback_data="back")]
+        [InlineKeyboardButton(text="Назад", callback_data="view_characters")],
     ])
 
 change_character = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")]])
+
+put_change_character = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Имя", callback_data="put_char_name"),InlineKeyboardButton(text="Возраст", callback_data="put_char_age"),InlineKeyboardButton(text="Фамилия",callback_data="put_char_surname")]])
 
 async def build_char_kb(chars):
     try:

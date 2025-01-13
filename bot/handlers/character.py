@@ -38,18 +38,64 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
         char = await get_char_by_char_id(int(callback_query.data))
         char = char[0]
         await callback_query.message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character) 
-        await state.update_data({"created_message_id": callback_query.message.message_id})
         await state.update_data({"char": char})
 
 @router.callback_query(lambda c: c.data == 'put_character')
 async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
+    await callback_query.message.edit_reply_markup(reply_markup=put_change_character)
+    
+@router.callback_query(lambda c: c.data == 'put_char_name')
+async def put_char_name(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.answer(text="Введите новое имя персонажа")
+    await state.set_state(Form.put_char_name)
+
+@router.message(Form.put_char_name)
+async def put_char_name_confirm(message: types.Message, state: FSMContext):
+    name = message.text
     char = await state.get_data()
     char = char["char"]
-    await update_char(char, char["id"])
-    await callback_query.message.edit_reply_markup()
-    await main_menu(callback_query.message,text="Ваш персонаж успешно обновлён!")
-    
+    char["name"] = name
+    await update_char(char,char["id"])
+    await message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character)
+    await state.clear()
+    await state.update_data({"char": char})
+
+@router.callback_query(lambda c: c.data == 'put_char_age')
+async def put_char_age(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.answer(text="Введите новый возраст персонажа")
+    await state.set_state(Form.put_char_age)
+
+@router.message(Form.put_char_age)
+async def put_char_age_confirm(message: types.Message, state: FSMContext):
+    age = message.text
+    char = await state.get_data()
+    char = char["char"]
+    char["age"] = age
+    await update_char(char,char["id"])
+    await message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character)
+    await state.clear()
+    await state.update_data({"char": char})
+
+@router.callback_query(lambda c: c.data == 'put_char_surname')
+async def put_char_surname(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.answer(text="Введите новую фамилию персонажа")
+    await state.set_state(Form.put_char_surname)
+
+@router.message(Form.put_char_surname)
+async def put_char_surname_confirm(message: types.Message, state: FSMContext):
+    surname = message.text
+    char = await state.get_data()
+    char = char["char"]
+    char["surname"] = surname
+    await update_char(char,char["id"])
+    await message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character)
+    await state.clear()
+    await state.update_data({"char": char})
+
 @router.callback_query(lambda c: c.data == 'delete_character')
 async def delete_character(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
@@ -62,13 +108,9 @@ async def delete_character_confirm(callback_query: types.CallbackQuery, state: F
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == "yes":
-        await callback_query.message.edit_text(text="Вы удалили персонажа")
-        await asyncio.sleep(1)
         await delete_char(char["id"])
         await main_menu(callback_query.message,text="Вы жестоко удалили вашего персонажа!")
     if callback_query.data == "no":
-        await callback_query.message.edit_text(text="Вы отменили удаление персонажа")
-        await asyncio.sleep(1)
         await main_menu(callback_query.message,text="Вы помиловали вашего персонажа от удаления!")
 
 @router.callback_query(lambda c: c.data == 'back')
@@ -111,7 +153,8 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
         await main_menu_query(callback_query)
     else:
         await state.update_data({"gender": callback_query.data})
-        response = await auto_create_char(await state.get_data())
+        data = await state.get_data()
+        response = await auto_create_char({"gender": data["gender"], "race": data["race"], "character_class": data["character_class"]})
         response["user_id"] = callback_query.from_user.id
         await callback_query.message.delete()
         await callback_query.message.answer(text=convert_json_to_char_info(response),parse_mode="MarkdownV2",reply_markup=what_do_next)
@@ -129,26 +172,22 @@ async def discard_character(callback_query: types.CallbackQuery,state: FSMContex
 async def discard_character(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     if callback_query.data == 'yes':
-        created_message_id = await state.get_data()
-        created_message_id = created_message_id["created_message_id"]
-        now_message_id = callback_query.message.message_id
-        if now_message_id - 1 == created_message_id:
-            await callback_query.message.delete()
-            await main_menu(callback_query.message)
-            await state.clear()
-        else:
-            await main_menu(message=callback_query.message)
-            await state.update_data({"created_message_id": callback_query.message.message_id})
+        await callback_query.message.delete()
+        await main_menu(callback_query.message,text="Вы жестоко удалили вашего персонажа!")
     else:
-        await callback_query.message.edit_text(text="Вы отменили удаление персонажа",reply_markup=what_do_next)
+        char = await state.get_data()
+        char = char["char"]
+        await callback_query.message.edit_text(text=f"{convert_json_to_char_info(char)}\nВы отменили удаление персонажа",reply_markup=what_do_next,parse_mode="MarkdownV2")
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
     char = await state.get_data()
     char = char["char"]
+    char["user_id"] = str(callback_query.from_user.id)
     response = await create_char(char)
-    await callback_query.message.edit_text(text=convert_json_to_char_info(response),parse_mode="MarkdownV2")
+    await main_menu_query(callback_query)
+    await callback_query.message.edit_caption(caption=f"Ваш персонаж по имени {response['name']} был успешно создан!",reply_markup=main_menu_keyboard)
 
 @router.callback_query(lambda c: c.data == 'update_character')
 async def update_character(callback_query: types.CallbackQuery,state: FSMContext):
@@ -170,11 +209,8 @@ async def char_name(message: types.Message,state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     char["name"] = name
-    created_message_id = await state.get_data()
-    created_message_id = created_message_id["created_message_id"]
     await message.answer(text=f"Ваш персонаж после правок:\n\n{convert_json_to_char_info(char)}",parse_mode="MarkdownV2",reply_markup=what_do_next)
     await state.clear()
-    await state.update_data({"created_message_id": created_message_id})
     await state.update_data({"char" : char})
 
 @router.callback_query(lambda c: c.data == 'char_age')
@@ -189,11 +225,8 @@ async def char_age(message: types.Message,state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     char["age"] = age
-    created_message_id = await state.get_data()
-    created_message_id = created_message_id["created_message_id"]
     await message.answer(text=f"Ваш персонаж после правок:\n\n{convert_json_to_char_info(char)}",parse_mode="MarkdownV2",reply_markup=what_do_next)   
     await state.clear()
-    await state.update_data({"created_message_id": created_message_id})
     await state.update_data({"char" : char})
     
 @router.callback_query(lambda c: c.data == 'char_surname')
@@ -208,9 +241,6 @@ async def char_surname(message: types.Message,state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     char["surname"] = surname
-    created_message_id = await state.get_data()
-    created_message_id = created_message_id["created_message_id"]
     await message.answer(text=f"Ваш персонаж после правок:\n\n{convert_json_to_char_info(char)}",parse_mode="MarkdownV2",reply_markup=what_do_next)
     await state.clear()
-    await state.update_data({"created_message_id": created_message_id})
     await state.update_data({"char" : char})

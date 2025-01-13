@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from keyboards.profile_keyboards import *
 from keyboards.common_keyboards import *
 from server_requests.profile_requests import *
-from handlers.commands import main_menu
+from handlers.commands import main_menu,main_menu_query
 from forms import Form
 
 
@@ -66,5 +66,4 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
         await callback_query.message.answer(text="Ваши данные успешно удалены. Для того чтобы продолжить пользоваться ботом нажмите /start")
     elif callback_query.data == 'no':
         await asyncio.sleep(1.0)
-        await callback_query.message.delete()
-        await main_menu(callback_query.message,text="Вы отменили удаление аккаунта")
+        await main_menu_query(callback_query)
