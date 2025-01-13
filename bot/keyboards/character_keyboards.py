@@ -41,7 +41,8 @@ change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
 change_character = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")]])
 
-async def build_char_kb(chars):
+async def build_char_kb(chars: list) -> InlineKeyboardMarkup:
+    """Создает клавиатуру с персонажами пользователя"""
     try:
         names = [[i["name"], str(i["id"])] for i in chars]
         inline_kb = []

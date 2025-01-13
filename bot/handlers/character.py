@@ -18,11 +18,13 @@ router = Router()
 
 @router.callback_query(lambda c: c.data == 'characters')
 async def characters(callback_query: types.CallbackQuery):
+    """Открытие меню персонажей"""
     await callback_query.answer()
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup=characters_keyboard)
 
 @router.callback_query(lambda c: c.data == 'view_characters')
 async def view_characters(callback_query: types.CallbackQuery, state: FSMContext):
+    """Открытие списка всех персонажей пользователя"""
     await callback_query.answer()
     user_chars = await get_char_by_user_id(callback_query.from_user.id)
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup = await build_char_kb(user_chars))
@@ -30,6 +32,7 @@ async def view_characters(callback_query: types.CallbackQuery, state: FSMContext
 
 @router.callback_query(Form.view_character)
 async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
+    """Вывод персонажа"""
     await callback_query.answer()
     await state.clear()
     if callback_query.data == 'main_menu':
@@ -43,6 +46,7 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == 'put_character')
 async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
+    """Обновление данных персонажа"""
     await callback_query.answer()
     char = await state.get_data()
     char = char["char"]
@@ -52,12 +56,14 @@ async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
     
 @router.callback_query(lambda c: c.data == 'delete_character')
 async def delete_character(callback_query: types.CallbackQuery, state: FSMContext):
+    """Открытие меню удаления персонажа"""
     await callback_query.answer()
     await callback_query.message.edit_text(text="Вы уверены в своих действиях?", reply_markup=yes_or_no_keyboard)
     await state.set_state(Form.delete_character_confirm)
 
 @router.callback_query(Form.delete_character_confirm)
 async def delete_character_confirm(callback_query: types.CallbackQuery, state: FSMContext):
+    """Открытие меню подтверждения удаления персонажа"""
     await callback_query.answer()
     char = await state.get_data()
     char = char["char"]
@@ -73,12 +79,14 @@ async def delete_character_confirm(callback_query: types.CallbackQuery, state: F
 
 @router.callback_query(lambda c: c.data == 'back')
 async def get_back(callback_query: types.CallbackQuery, state: FSMContext):
+    """Возврат к просмотру персонажа"""
     await callback_query.answer()
     await callback_query.message.delete()
     await state.set_state(Form.view_character)
 
 @router.callback_query(lambda c: c.data == 'create_character')
 async def choose_creation(callback_query: types.CallbackQuery,state: FSMContext):
+    """Открытие меню с выбором класса персонажа"""
     await callback_query.answer()
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/char_create.png")))
     await callback_query.message.edit_caption(caption="Ответьте на три вопроса, а мы заполним все остальное! :)\nВыберете класс вашего персонажа:",  reply_markup=classes_keyboard)
@@ -86,6 +94,7 @@ async def choose_creation(callback_query: types.CallbackQuery,state: FSMContext)
 
 @router.callback_query(Form.auto_char_class)
 async def enter_char_class(callback_query: types.CallbackQuery, state: FSMContext):
+    """Открытие меню с выбором расы персонажа"""
     await callback_query.answer()
     if callback_query.data == 'main_menu':
         await main_menu_query(callback_query)
@@ -96,6 +105,7 @@ async def enter_char_class(callback_query: types.CallbackQuery, state: FSMContex
 
 @router.callback_query(Form.auto_char_race)
 async def enter_char_race(callback_query: types.CallbackQuery, state: FSMContext):
+    """Открытие меню с выбором пола персонажа"""
     await callback_query.answer()
     if callback_query.data == 'main_menu':
         await main_menu_query(callback_query)
@@ -106,6 +116,7 @@ async def enter_char_race(callback_query: types.CallbackQuery, state: FSMContext
 
 @router.callback_query(Form.auto_char_gender)
 async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMContext):
+    """Создание и вывод автоматически сгенерированного персонажа"""
     await callback_query.answer()
     if callback_query.data == 'main_menu':
         await main_menu_query(callback_query)
@@ -120,13 +131,15 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
         await state.update_data({"char" : response})
     
 @router.callback_query(lambda c: c.data == 'discard_character')
-async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
+async def discard_character_1(callback_query: types.CallbackQuery,state: FSMContext):
+    """Открытие подтверждения удаления персонажа"""
     await callback_query.answer()
     await callback_query.message.edit_text(text="Вы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
-async def discard_character(callback_query: types.CallbackQuery, state: FSMContext):
+async def discard_character_2(callback_query: types.CallbackQuery, state: FSMContext):
+    """Удаление или отмена удаления персонажа"""
     await callback_query.answer()
     if callback_query.data == 'yes':
         created_message_id = await state.get_data()
@@ -144,6 +157,7 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
+    """Сохранение сгенерированного персонажа"""
     await callback_query.answer()
     char = await state.get_data()
     char = char["char"]
@@ -152,6 +166,7 @@ async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
 
 @router.callback_query(lambda c: c.data == 'update_character')
 async def update_character(callback_query: types.CallbackQuery,state: FSMContext):
+    """Открытие меню изменения данных персонажа"""
     await callback_query.answer()
     text = await state.get_data()
     text = json.dumps(text["char"],indent=2, ensure_ascii=False)
@@ -160,12 +175,14 @@ async def update_character(callback_query: types.CallbackQuery,state: FSMContext
 
 @router.callback_query(lambda c: c.data == 'char_name')
 async def enter_char_name(callback_query: types.CallbackQuery,state: FSMContext):
+    """Ввод нового имени персонажа"""
     await callback_query.answer()
     await callback_query.message.answer(text="Введите имя персонажа:")
     await state.set_state(Form.char_name)
 
 @router.message(Form.char_name)
 async def char_name(message: types.Message,state: FSMContext):
+    """Установка нового имени персонажа"""
     name = message.text
     char = await state.get_data()
     char = char["char"]
@@ -179,31 +196,38 @@ async def char_name(message: types.Message,state: FSMContext):
 
 @router.callback_query(lambda c: c.data == 'char_age')
 async def enter_char_age(callback_query: types.CallbackQuery,state: FSMContext):
+    """Ввод нового возраста персонажа"""
     await callback_query.answer()
     await callback_query.message.answer(text="Введите возраст персонажа:")
     await state.set_state(Form.char_age)
 
 @router.message(Form.char_age)
 async def char_age(message: types.Message,state: FSMContext):
-    age = int(message.text)
-    char = await state.get_data()
-    char = char["char"]
-    char["age"] = age
-    created_message_id = await state.get_data()
-    created_message_id = created_message_id["created_message_id"]
-    await message.answer(text=f"Ваш персонаж после правок:\n\n{convert_json_to_char_info(char)}",parse_mode="MarkdownV2",reply_markup=what_do_next)   
-    await state.clear()
-    await state.update_data({"created_message_id": created_message_id})
-    await state.update_data({"char" : char})
+    """Изменение возраста персонажа"""
+    if message.text.isdigit():
+        age = int(message.text)
+        char = await state.get_data()
+        char = char["char"]
+        char["age"] = age
+        created_message_id = await state.get_data()
+        created_message_id = created_message_id["created_message_id"]
+        await message.answer(text=f"Ваш персонаж после правок:\n\n{convert_json_to_char_info(char)}",parse_mode="MarkdownV2",reply_markup=what_do_next)   
+        await state.clear()
+        await state.update_data({"created_message_id": created_message_id})
+        await state.update_data({"char" : char})
+    else:
+        await message.answer(text="Пожалуйста введите допустимый возраст персонажа")
     
 @router.callback_query(lambda c: c.data == 'char_surname')
 async def enter_char_surname(callback_query: types.CallbackQuery,state: FSMContext):
+    """Ввод новой фамилии персонажа"""
     await callback_query.answer()
     await callback_query.message.answer(text="Введите фамилию персонажа:")
     await state.set_state(Form.char_name)
 
 @router.message(Form.char_surname)
 async def char_surname(message: types.Message,state: FSMContext):
+    """Изменение фамилии персонажа"""
     surname = message.text
     char = await state.get_data()
     char = char["char"]

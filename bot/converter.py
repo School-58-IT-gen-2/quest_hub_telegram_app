@@ -31,11 +31,26 @@ TRANSLATIONS = {
 }
 
 def translate_key(key: str) -> str:
-    """Переводит название параметра на русский"""
+    """Переводит название параметра на русский
+
+    Args:
+        key (str): Название параметра на английском
+
+    Returns:
+        str: Название параметра на русском
+    """
     return TRANSLATIONS.get(key, key)
 
 def translate_stat(stat: str) -> str:
-    """Переводит название характеристики на русский"""
+    """
+    Переводит название характеристики на русский
+    
+    Args:
+        stat (str): Название характеристики на английском
+
+    Returns:
+        str: Название характеристики на русском
+    """
     stat_translations = {
         'strength': 'Сила',
         'dexterity': 'Ловкость',
@@ -47,18 +62,43 @@ def translate_stat(stat: str) -> str:
     return stat_translations.get(stat, stat.capitalize())
 
 def tg_text_convert(text: str) -> str:
-    """Форматирует текст для отправки в ТГ"""
+    """
+    Форматирует текст для отправки в ТГ
+    
+    Args:
+        text (str): Текст, который надо отформатировать
+
+    Returns:
+        str: Отформатированный текст
+    """
     restricted_symbols = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
     for i in restricted_symbols:
         text = text.replace(i, '\\' + i)
     return text
 
 def align_text(text: list, offset: int) -> str:
-    """Выравнивает текст в 2 колонки"""
+    """
+    Выравнивает текст в 2 колонки
+
+    Args:
+        text (str): Список из 2 элементов (текст в двух колонках)
+        offset (int): Расстояние между началом первой и второй колонки в символах
+
+    Returns:
+        str: Отформатированный текст
+    """
     return f"{text[0]}:" + ' ' * (offset - len(text[0])) + str(text[1])
 
 def format_weapons_and_armor(data: dict) -> str:
-    """Форматирует вывод амуниции и брони"""
+    """
+    Форматирует вывод амуниции и брони
+    
+    Args:
+        data (dict): Словарь с данными персонажа
+    
+    Returns:
+        str: Отформатированный текст с амуницией и броней персонажа
+    """
     card = ""
 
     if "weapons_and_equipment" in data:
@@ -93,7 +133,15 @@ def format_weapons_and_armor(data: dict) -> str:
     return card
 
 def convert_json_to_char_info(data: dict) -> str:
-    """Создает лист персонажа по словарю с данными"""
+    """
+    Создает лист персонажа по словарю с данными
+    
+    Args:
+        data (dict): Словарь с данными персонажа
+        
+    Returns:    
+        str: Отформатированный текст с листом персонажа
+    """
     card = (
         f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
         "*_Основные параметры:_*\n"

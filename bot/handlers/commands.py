@@ -11,6 +11,7 @@ router = Router()
 
 @router.message(Command("start"))
 async def start(message: types.Message):
+    """Вывод приветствия и создание пользователя"""
     user_data = {
             "first_name": message.from_user.first_name,
             "last_name": message.from_user.last_name,
@@ -28,12 +29,15 @@ async def start(message: types.Message):
 
 @router.message(Command("help"))
 async def help(message: types.Message):
+    """Вывод помощи"""
     await message.answer("Тут помощь (возможно)!")
 
 @router.callback_query(lambda c: c.data == 'main_menu')
 async def main_menu_query(callback_query: types.CallbackQuery):
+    """Вывод главного меню (редактирование сообщения)"""
     await callback_query.answer()
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/main_menu.png")), reply_markup=main_menu_keyboard)
 
 async def main_menu(message: types.Message, text: str = ""):
+    """Вывод главного меню (отправка нового сообщения)"""
     await message.answer_photo(caption=text,photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
