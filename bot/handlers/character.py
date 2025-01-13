@@ -111,7 +111,7 @@ async def delete_character_confirm(callback_query: types.CallbackQuery, state: F
         await delete_char(char["id"])
         await main_menu(callback_query.message,text="Вы жестоко удалили вашего персонажа!")
     if callback_query.data == "no":
-        await main_menu(callback_query.message,text="Вы помиловали вашего персонажа от удаления!")
+        await callback_query.message.edit_text(parse_mode="MarkdownV2",text=f"{convert_json_to_char_info(char)}\nВы отказались от удаления персонажа",reply_markup=change_or_delete_character)
 
 @router.callback_query(lambda c: c.data == 'back')
 async def get_back(callback_query: types.CallbackQuery, state: FSMContext):
