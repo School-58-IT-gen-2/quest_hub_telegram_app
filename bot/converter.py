@@ -32,8 +32,10 @@ TRANSLATIONS = {
 
 def translate_key(key: str) -> str:
     """Переводит название параметра на русский
+
     Args:
         key (str): Название параметра на английском
+
     Returns:
         str: Название параметра на русском
     """
@@ -45,6 +47,7 @@ def translate_stat(stat: str) -> str:
     
     Args:
         stat (str): Название характеристики на английском
+
     Returns:
         str: Название характеристики на русском
     """
@@ -64,6 +67,7 @@ def tg_text_convert(text: str) -> str:
     
     Args:
         text (str): Текст, который надо отформатировать
+
     Returns:
         str: Отформатированный текст
     """
@@ -75,9 +79,11 @@ def tg_text_convert(text: str) -> str:
 def align_text(text: list, offset: int) -> str:
     """
     Выравнивает текст в 2 колонки
+
     Args:
         text (str): Список из 2 элементов (текст в двух колонках)
         offset (int): Расстояние между началом первой и второй колонки в символах
+
     Returns:
         str: Отформатированный текст
     """
@@ -101,18 +107,6 @@ def format_weapons_and_armor(data: dict) -> str:
         for name, details in weapons_and_equipment.items():
             card += f"{name}:\n"
             for key, value in details.items():
-                if isinstance(value, list):
-                    value = ", ".join(value)
-                card += align_text([translate_key(key), value], 22) + "\n"
-            card += "\n"
-    else:
-        card += "*_Амуниция: Нет данных_*\n"
-
-    if "armor" in data:
-        armor = data["armor"]
-        for name, details in armor.items():
-            card += f"{name}:\n"
-            for key, value in details.items():
                 if key == "dex_bonus":
                     value = "Да" if value else "Нет"
                 elif key == "stealth_disadvantage":
@@ -121,9 +115,7 @@ def format_weapons_and_armor(data: dict) -> str:
                     value = ", ".join(value)
                 card += align_text([translate_key(key), value], 22) + "\n"
             card += "\n"
-    else:
-        card += ""
-    card += "```"
+        card += "```"
     return card
 
 def convert_json_to_char_info(data: dict) -> str:
