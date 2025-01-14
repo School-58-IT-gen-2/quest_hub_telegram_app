@@ -107,18 +107,6 @@ def format_weapons_and_armor(data: dict) -> str:
         for name, details in weapons_and_equipment.items():
             card += f"{name}:\n"
             for key, value in details.items():
-                if isinstance(value, list):
-                    value = ", ".join(value)
-                card += align_text([translate_key(key), value], 22) + "\n"
-            card += "\n"
-    else:
-        card += "*_Амуниция: Нет данных_*\n"
-
-    if "armor" in data:
-        armor = data["armor"]
-        for name, details in armor.items():
-            card += f"{name}:\n"
-            for key, value in details.items():
                 if key == "dex_bonus":
                     value = "Да" if value else "Нет"
                 elif key == "stealth_disadvantage":
@@ -127,9 +115,7 @@ def format_weapons_and_armor(data: dict) -> str:
                     value = ", ".join(value)
                 card += align_text([translate_key(key), value], 22) + "\n"
             card += "\n"
-    else:
-        card += ""
-    card += "```"
+        card += "```"
     return card
 
 def convert_json_to_char_info(data: dict) -> str:
