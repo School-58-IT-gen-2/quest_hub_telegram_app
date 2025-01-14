@@ -45,6 +45,7 @@ put_change_character = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Имя", callback_data="put_char_name"),InlineKeyboardButton(text="Возраст", callback_data="put_char_age"),InlineKeyboardButton(text="Фамилия",callback_data="put_char_surname")]])
 
 async def build_char_kb(chars):
+    """Создает клавиатуру с персонажами пользователя"""
     try:
         names = [[i["name"], str(i["id"])] for i in chars]
         inline_kb = []
