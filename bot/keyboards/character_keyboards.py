@@ -40,10 +40,12 @@ change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 change_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")]])
+        [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")],
+        [InlineKeyboardButton(text="Назад", callback_data="back_to_char_from_generation")]])
 
 put_change_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Имя", callback_data="put_char_name"),InlineKeyboardButton(text="Возраст", callback_data="put_char_age"),InlineKeyboardButton(text="Фамилия",callback_data="put_char_surname")]])
+        [InlineKeyboardButton(text="Имя", callback_data="put_char_name"),InlineKeyboardButton(text="Возраст", callback_data="put_char_age"),InlineKeyboardButton(text="Фамилия",callback_data="put_char_surname")],
+        [InlineKeyboardButton(text="Назад", callback_data="back_to_char_from_put")]])
 
 async def build_char_kb(chars):
     """Создает клавиатуру с персонажами пользователя"""

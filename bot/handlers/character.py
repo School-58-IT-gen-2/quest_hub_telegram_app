@@ -49,6 +49,12 @@ async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
     await callback_query.answer()
     await callback_query.message.edit_reply_markup(reply_markup=put_change_character)
     
+@router.callback_query(lambda c: c.data == 'back_to_char_from_put')
+async def back_to_char_from_put(callback_query: types.CallbackQuery, state: FSMContext):
+    """Выход из меню изменения персонажа"""
+    await callback_query.answer()
+    await callback_query.message.edit_reply_markup(reply_markup=change_or_delete_character)
+
 @router.callback_query(lambda c: c.data == 'put_char_name')
 async def put_char_name(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
@@ -210,11 +216,15 @@ async def regenerate_character(callback_query: types.CallbackQuery,state: FSMCon
     await callback_query.answer()
     char = await state.get_data()
     char = char["char"]
-    print(char)
     response = await auto_create_char({"gender": char["gender"], "race": char["race"], "character_class": char["character_class"]})
     response["user_id"] = callback_query.from_user.id
     await callback_query.message.edit_text(text=f"Ваш новый персонаж:\n\n{convert_json_to_char_info(response)}",parse_mode="MarkdownV2",reply_markup=what_do_next)
     
+@router.callback_query(lambda c: c.data == 'back_to_char_from_generation')
+async def back_to_character(callback_query: types.CallbackQuery,state: FSMContext):
+    """Возвращение к персонажу"""
+    await callback_query.answer()
+    await callback_query.message.edit_reply_markup(reply_markup=what_do_next)
 
 @router.callback_query(lambda c: c.data == 'update_character')
 async def update_character(callback_query: types.CallbackQuery,state: FSMContext):
