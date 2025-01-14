@@ -16,10 +16,8 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
-router = Router()
 
 async def main():
-    dp.include_router(router)
     dp.include_router(character.router)
     dp.include_router(commands.router)
     dp.include_router(profile.router)

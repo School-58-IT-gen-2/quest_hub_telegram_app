@@ -163,14 +163,15 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
     if callback_query.data == 'main_menu':
         await main_menu_query(callback_query)
     else:
-        await state.update_data({"gender": callback_query.data})
+        gender = callback_query.data
+        await state.update_data({"gender": gender})
         data = await state.get_data()
         response = await auto_create_char({"gender": data["gender"], "race": data["race"], "character_class": data["character_class"]})
         response["user_id"] = callback_query.from_user.id
         await callback_query.message.delete()
         await callback_query.message.answer(text=convert_json_to_char_info(response),parse_mode="MarkdownV2",reply_markup=what_do_next)
         await state.clear()
-        await state.update_data({"created_message_id": callback_query.message.message_id})
+        response["gender"] = gender
         await state.update_data({"char" : response})
     
 @router.callback_query(lambda c: c.data == 'discard_character')
@@ -202,6 +203,18 @@ async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
     response = await create_char(char)
     await main_menu_query(callback_query)
     await callback_query.message.edit_caption(caption=f"Ваш персонаж по имени {response['name']} был успешно создан!",reply_markup=main_menu_keyboard)
+
+@router.callback_query(lambda c: c.data == 'regenerate_character')
+async def regenerate_character(callback_query: types.CallbackQuery,state: FSMContext):
+    """Перегенерация персонажа"""
+    await callback_query.answer()
+    char = await state.get_data()
+    char = char["char"]
+    print(char)
+    response = await auto_create_char({"gender": char["gender"], "race": char["race"], "character_class": char["character_class"]})
+    response["user_id"] = callback_query.from_user.id
+    await callback_query.message.edit_text(text=f"Ваш новый персонаж:\n\n{convert_json_to_char_info(response)}",parse_mode="MarkdownV2",reply_markup=what_do_next)
+    
 
 @router.callback_query(lambda c: c.data == 'update_character')
 async def update_character(callback_query: types.CallbackQuery,state: FSMContext):
