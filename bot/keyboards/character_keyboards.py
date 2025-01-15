@@ -27,27 +27,33 @@ gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 what_do_next = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Сохранить изменения", callback_data="put_character")],
+        [InlineKeyboardButton(text="Сохранить персонажа", callback_data="save_character")],
         [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
         [InlineKeyboardButton(text="Удалить персонажа", callback_data="discard_character")],
+        [InlineKeyboardButton(text="Перегенерировать персонажа", callback_data="regenerate_character")],
     ])
 
 change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="update_character")],
+        [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="put_character")],
         [InlineKeyboardButton(text="Удалить персонажа", callback_data="delete_character")],
-        [InlineKeyboardButton(text="Назад", callback_data="back")]
+        [InlineKeyboardButton(text="Назад", callback_data="view_characters")],
     ])
 
 change_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")]])
+        [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")],
+        [InlineKeyboardButton(text="Назад", callback_data="back_to_char_from_generation")]])
+
+put_change_character = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Имя", callback_data="put_char_name"),InlineKeyboardButton(text="Возраст", callback_data="put_char_age"),InlineKeyboardButton(text="Фамилия",callback_data="put_char_surname")],
+        [InlineKeyboardButton(text="Назад", callback_data="back_to_char_from_put")]])
 
 async def build_char_kb(chars: list) -> InlineKeyboardMarkup:
     """Создает клавиатуру с персонажами пользователя"""
     try:
-        names = [[i["name"], str(i["id"])] for i in chars]
+        names = [[i["name"], i["surname"], str(i["id"])] for i in chars]
         inline_kb = []
         for i in names:
-            inline_kb.append([InlineKeyboardButton(text=i[0], callback_data=i[1])])
+            inline_kb.append([InlineKeyboardButton(text=f"{i[0]} {i[1]}", callback_data=i[2])])
     except:
         inline_kb = []
     inline_kb.append([InlineKeyboardButton(text="Главное меню", callback_data="main_menu")])

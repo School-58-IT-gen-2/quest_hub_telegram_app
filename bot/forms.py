@@ -12,3 +12,6 @@ class Form(StatesGroup):
     char_name = State()
     char_age = State()
     char_surname = State()
+    put_char_name = State()
+    put_char_age = State()
+    put_char_surname = State()

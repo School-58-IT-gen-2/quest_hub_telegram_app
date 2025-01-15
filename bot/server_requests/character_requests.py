@@ -2,7 +2,6 @@ import httpx
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 async def get_char_by_char_id(char_id: int):

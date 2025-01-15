@@ -8,6 +8,7 @@ from keyboards.profile_keyboards import *
 from keyboards.common_keyboards import *
 from server_requests.profile_requests import *
 from handlers.commands import main_menu
+from server_requests.character_requests import *
 from forms import Form
 
 
@@ -71,6 +72,12 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
     await callback_query.answer()
     await state.clear()
     if callback_query.data == 'yes':
+        chars = await get_char_by_user_id(callback_query.from_user.id)
+        if "detail" in chars:
+            pass
+        else:
+            for char in chars:
+                await delete_char(char['id'])
         await delete_user(tg_id = callback_query.from_user.id)
         await callback_query.message.edit_caption(caption="Ваш аккаунт был успешно удален")
         await asyncio.sleep(1.0)
