@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 603cedb1e1fe5f189c0626ecf3752f81ae7a2410
 from aiogram import Dispatcher, types, Router
 from aiogram.filters.command import Command
 from aiogram.types import FSInputFile, InputMediaPhoto
@@ -41,4 +44,8 @@ async def main_menu_query(callback_query: types.CallbackQuery):
 
 async def main_menu(message: types.Message, text: str = ""):
     """Вывод главного меню (отправка нового сообщения)"""
+<<<<<<< HEAD
     await message.answer_photo(caption=text,photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
+=======
+    await message.answer_photo(caption=text,photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard)
+>>>>>>> 603cedb1e1fe5f189c0626ecf3752f81ae7a2410
