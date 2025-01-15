@@ -6,8 +6,5 @@ account_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 change_user_data_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-<<<<<<< HEAD
         [InlineKeyboardButton(text="Изменить возраст", callback_data="change_age")],[InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]])
-=======
-        [InlineKeyboardButton(text="Изменить возраст", callback_data="change_age")],[InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]])
->>>>>>> 603cedb1e1fe5f189c0626ecf3752f81ae7a2410
+

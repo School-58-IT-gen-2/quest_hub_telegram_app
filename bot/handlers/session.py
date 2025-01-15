@@ -26,8 +26,4 @@ router = Router()
 async def arrange_meeting(callback_query: types.CallbackQuery):
     """Открытие меню для сессий"""
     await callback_query.answer()
-<<<<<<< HEAD
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/session.png")), reply_markup=session_menu_keyboard)   
-=======
-    await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/session.png")), reply_markup=session_menu_keyboard)    
->>>>>>> 603cedb1e1fe5f189c0626ecf3752f81ae7a2410

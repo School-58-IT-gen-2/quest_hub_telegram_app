@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> 603cedb1e1fe5f189c0626ecf3752f81ae7a2410
 import asyncio
 
 from aiogram import Dispatcher, types, Router
@@ -89,8 +85,5 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
     elif callback_query.data == 'no':
         await asyncio.sleep(1.0)
         await callback_query.message.delete()
-<<<<<<< HEAD
         await main_menu(callback_query.message,text="Вы отменили удаление аккаунта")
-=======
-        await main_menu(callback_query.message,text="Вы отменили удаление аккаунта")
->>>>>>> 603cedb1e1fe5f189c0626ecf3752f81ae7a2410
+
