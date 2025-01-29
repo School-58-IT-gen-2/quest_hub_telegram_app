@@ -179,12 +179,14 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
         await state.clear()
         response["gender"] = gender
         await state.update_data({"char" : response})
+        await state.update_data({"base_char_info" : {"gender": data["gender"], "race": data["race"], "character_class": data["character_class"]}})
     
 @router.callback_query(lambda c: c.data == 'discard_character')
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
     """Открытие подтверждения удаления персонажа"""
     await callback_query.answer()
     await callback_query.message.edit_text(text="Вы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
+    print(await state.get_data())
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
@@ -196,8 +198,10 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
         await main_menu(callback_query.message,text="Вы жестоко удалили вашего персонажа!")
     else:
         char = await state.get_data()
+        base_info = char["base_char_info"]
         char = char["char"]
         await callback_query.message.edit_text(text=f"{convert_json_to_char_info(char)}\nВы отменили удаление персонажа",reply_markup=what_do_next,parse_mode="MarkdownV2")
+        await state.update_data({"base_char_info" : base_info})
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
@@ -215,7 +219,7 @@ async def regenerate_character(callback_query: types.CallbackQuery,state: FSMCon
     """Перегенерация персонажа"""
     await callback_query.answer()
     char = await state.get_data()
-    char = char["char"]
+    char = char["base_char_info"]
     response = await auto_create_char({"gender": char["gender"], "race": char["race"], "character_class": char["character_class"]})
     response["user_id"] = callback_query.from_user.id
     await callback_query.message.edit_text(text=f"Ваш новый персонаж:\n\n{convert_json_to_char_info(response)}",parse_mode="MarkdownV2",reply_markup=what_do_next)
