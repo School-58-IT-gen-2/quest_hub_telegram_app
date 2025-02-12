@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 
 from aiogram import Dispatcher, types, Router
 from aiogram.types import InputMediaPhoto, FSInputFile
@@ -42,6 +43,23 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
         char = char[0]
         await callback_query.message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character) 
         await state.update_data({"char": char})
+
+@router.callback_query(lambda c: c.data == 'regenerate_character_from_put')
+async def regenerate_character_from_put(callback_query: types.CallbackQuery, state: FSMContext):
+    """Перегенерация персонажа из меню с персонажами"""
+    await callback_query.answer()
+    char = await state.get_data()
+    char = char["char"]
+    gender = "M" if random.random() < 0.5 else "W"
+    new_char = await auto_create_char({"character_class": char["character_class"], "race": char["race"], "gender": gender})
+    await delete_char(char["id"])
+    new_char["user_id"] = char["user_id"]
+    await create_char(new_char)
+    #await callback_query.message.delete()
+    await callback_query.message.edit_text(text=convert_json_to_char_info(new_char),reply_markup=change_or_delete_character,parse_mode="MarkdownV2")
+    await state.update_data({"char": new_char})
+    await state.update_data({"base_char_info": {"character_class": char["character_class"], "race": char["race"], "gender": gender}})
+    
 
 @router.callback_query(lambda c: c.data == 'put_character')
 async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
