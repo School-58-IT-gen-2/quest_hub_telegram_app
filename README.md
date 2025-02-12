@@ -39,7 +39,7 @@ BOT_TOKEN=your bot token
 # QusetHub URL
 QUESTHUB_URL=url to server
 # RnD MVP URL
-RND_URL=url to tnd server
+RND_URL=url to rnd server
 ```
 
 ### Запуск проекта
