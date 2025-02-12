@@ -186,7 +186,7 @@ async def discard_character(callback_query: types.CallbackQuery,state: FSMContex
     """Открытие подтверждения удаления персонажа"""
     await callback_query.answer()
     await callback_query.message.edit_text(text="Вы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
-    print(await state.get_data())
+    #print(await state.get_data())
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
@@ -200,8 +200,10 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
         char = await state.get_data()
         base_info = char["base_char_info"]
         char = char["char"]
-        await callback_query.message.edit_text(text=f"{convert_json_to_char_info(char)}\nВы отменили удаление персонажа",reply_markup=what_do_next,parse_mode="MarkdownV2")
         await state.update_data({"base_char_info" : base_info})
+        await state.update_data({"char" : char})
+        await callback_query.message.delete()
+        await callback_query.message.answer(text=f"{convert_json_to_char_info(char)}\nВы отменили удаление персонажа",reply_markup=what_do_next,parse_mode="MarkdownV2")
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
