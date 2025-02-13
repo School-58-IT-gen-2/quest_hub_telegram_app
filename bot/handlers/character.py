@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 
 from aiogram import Dispatcher, types, Router
 from aiogram.types import InputMediaPhoto, FSInputFile
@@ -42,6 +43,42 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
         char = char[0]
         await callback_query.message.answer(text=convert_json_to_char_info(char),parse_mode="MarkdownV2",reply_markup=change_or_delete_character) 
         await state.update_data({"char": char})
+
+@router.callback_query(lambda c: c.data == 'regenerate_character_from_put')
+async def regenerate_character_from_put(callback_query: types.CallbackQuery, state: FSMContext):
+    """активация state для изменения персонажа"""
+    await callback_query.answer()
+    await callback_query.message.edit_text(text="Вы уверены в том, что хотите перегенерировать персонаж? Весь ваш прогресс на персонаже при этом будет утерян.", reply_markup=yes_or_no_keyboard)
+    await state.set_state(Form.regenerate_char)
+
+@router.callback_query(Form.regenerate_char)
+async def regenerate_char(callback_query: types.CallbackQuery, state: FSMContext):
+    """Перегенерация персонажа"""
+    await callback_query.answer()
+    if callback_query.data == "yes":
+        await callback_query.answer()
+        char = await state.get_data()
+        char = char["char"]
+        gender = "M" if random.random() < 0.5 else "W"
+        new_char = await auto_create_char({"character_class": char["character_class"], "race": char["race"], "gender": gender})
+        try:
+            await delete_char(char["id"])
+            new_char["user_id"] = char["user_id"]
+            await create_char(new_char)
+        except:
+            pass
+        new_char["user_id"] = char["user_id"]
+        await callback_query.message.edit_text(text=convert_json_to_char_info(new_char),reply_markup=change_or_delete_character,parse_mode="MarkdownV2")
+        await state.update_data({"char": new_char})
+        await state.update_data({"base_char_info": {"character_class": char["character_class"], "race": char["race"], "gender": gender}})
+    else:
+        char = await state.get_data()
+        base_info = char["base_char_info"]
+        char = char["char"]
+        await state.update_data({"base_char_info" : base_info})
+        await state.update_data({"char" : char})
+        await callback_query.message.delete()
+        await callback_query.message.answer(text=f"{convert_json_to_char_info(char)}\nВы отменили перегенерацию персонажа персонажа",reply_markup=change_or_delete_character,parse_mode="MarkdownV2")
 
 @router.callback_query(lambda c: c.data == 'put_character')
 async def put_character(callback_query: types.CallbackQuery,state: FSMContext):
@@ -179,12 +216,14 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
         await state.clear()
         response["gender"] = gender
         await state.update_data({"char" : response})
+        await state.update_data({"base_char_info" : {"gender": data["gender"], "race": data["race"], "character_class": data["character_class"]}})
     
 @router.callback_query(lambda c: c.data == 'discard_character')
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
     """Открытие подтверждения удаления персонажа"""
     await callback_query.answer()
     await callback_query.message.edit_text(text="Вы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
+    #print(await state.get_data())
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
@@ -196,8 +235,12 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
         await main_menu(callback_query.message,text="Вы жестоко удалили вашего персонажа!")
     else:
         char = await state.get_data()
+        base_info = char["base_char_info"]
         char = char["char"]
-        await callback_query.message.edit_text(text=f"{convert_json_to_char_info(char)}\nВы отменили удаление персонажа",reply_markup=what_do_next,parse_mode="MarkdownV2")
+        await state.update_data({"base_char_info" : base_info})
+        await state.update_data({"char" : char})
+        await callback_query.message.delete()
+        await callback_query.message.answer(text=f"{convert_json_to_char_info(char)}\nВы отменили удаление персонажа",reply_markup=what_do_next,parse_mode="MarkdownV2")
 
 @router.callback_query(lambda c: c.data == 'save_character')
 async def save_character(callback_query: types.CallbackQuery,state: FSMContext):
@@ -215,7 +258,7 @@ async def regenerate_character(callback_query: types.CallbackQuery,state: FSMCon
     """Перегенерация персонажа"""
     await callback_query.answer()
     char = await state.get_data()
-    char = char["char"]
+    char = char["base_char_info"]
     response = await auto_create_char({"gender": char["gender"], "race": char["race"], "character_class": char["character_class"]})
     response["user_id"] = callback_query.from_user.id
     await callback_query.message.edit_text(text=f"Ваш новый персонаж:\n\n{convert_json_to_char_info(response)}",parse_mode="MarkdownV2",reply_markup=what_do_next)

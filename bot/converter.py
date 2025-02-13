@@ -130,7 +130,7 @@ def convert_json_to_char_info(data: dict) -> str:
     """
     card = (
         f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
-        "*_Основные параметры:_*\n"
+        "👤 *_Основные параметры:_*\n"
         "```Параметры\n"
         f"{align_text(['Возраст', data.get('age', 'Не указан')], 22)}\n"
         f"{align_text(['Раса', data.get('race', 'Не указана')], 22)}\n"
@@ -143,39 +143,39 @@ def convert_json_to_char_info(data: dict) -> str:
         f"{align_text(['Инициатива', data.get('initiative', 'Не указана')], 22)}\n"
         f"{align_text(['Вдохновение', 'Да' if data.get('inspiration', False) else 'Нет'], 22)}"
         "```\n\n"
-        f"*_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}\n\n\n"
+        f"📜 *_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}\n\n\n"
     )
 
     if 'stats' in data:
         stats = data['stats']
-        card += "*_Характеристики:_*\n```Характеристики\n"
+        card += "⚙️ *_Характеристики:_*\n```Характеристики\n"
         card += "\n".join(align_text([translate_stat(stat), value], 22) for stat, value in stats.items()) + "```"
 
     if 'stat_modifiers' in data:
         modifiers = data['stat_modifiers']
-        card += "\n\n*_Модификаторы характеристик:_*\n```Модификаторы\n"
+        card += "\n\n📊 *_Модификаторы характеристик:_*\n```Модификаторы\n"
         card += "\n".join(align_text([translate_stat(stat), value], 22) for stat, value in modifiers.items()) + "```"
 
     if 'skills' in data:
         skills = data['skills']
-        card += "\n\n*_Навыки:_*\n"
+        card += "\n\n🛠️ *_Навыки:_*\n"
         card += "\n".join(f">\U00002022 {skill}" for skill in skills)
 
     if 'traits_and_abilities' in data:
         traits = data['traits_and_abilities']
-        card += "\n\n\n*_Черты и способности:_*\n"
+        card += "\n\n\n🧬 *_Черты и способности:_*\n"
         card += "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc)}" for trait, desc in traits.items())
 
-    card += f'\n\n\n {format_weapons_and_armor(data)}'
+    card += f'\n\n\n🛡️ {format_weapons_and_armor(data)}'
 
     if 'inventory' in data:
         inventory = data['inventory']
-        card += "\n\n*_Инвентарь:_*\n"
+        card += "\n\n🎒 *_Инвентарь:_*\n"
         card += "\n".join(f">\U00002022 {tg_text_convert(item)}" for item in inventory)
 
     if 'languages' in data:
         languages = data['languages']
-        card += "\n\n\n*_Языки:_*\n"
+        card += "\n\n\n🗣️ *_Языки:_*\n"
         card += "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in languages)
         
     return card

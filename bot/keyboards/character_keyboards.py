@@ -36,6 +36,7 @@ what_do_next = InlineKeyboardMarkup(inline_keyboard=[
 change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить какие-то параметры", callback_data="put_character")],
         [InlineKeyboardButton(text="Удалить персонажа", callback_data="delete_character")],
+        [InlineKeyboardButton(text="Перегенерировать персонажа", callback_data="regenerate_character_from_put")],
         [InlineKeyboardButton(text="Назад", callback_data="view_characters")],
     ])
 
