@@ -15,3 +15,4 @@ class Form(StatesGroup):
     put_char_name = State()
     put_char_age = State()
     put_char_surname = State()
+    regenerate_char = State()
