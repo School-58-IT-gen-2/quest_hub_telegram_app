@@ -118,7 +118,7 @@ def format_weapons_and_armor(data: dict) -> str:
         card += "```"
     return card
 
-def convert_json_to_char_info(data: dict) -> str:
+def character_card(data: dict) -> str:
     """
     Создает лист персонажа по словарю с данными
     
@@ -135,7 +135,7 @@ def convert_json_to_char_info(data: dict) -> str:
         f"{align_text(['Возраст', data.get('age', 'Не указан')], 22)}\n"
         f"{align_text(['Раса', data.get('race', 'Не указана')], 22)}\n"
         f"{align_text(['Класс', data.get('character_class', 'Не указан')], 22)}\n"
-        f"{align_text(['Уровень', data.get('lvl', 'Не указан')], 22)}\n"
+        f"{align_text(['Уровень', 1 if data.get('lvl', 'Не указан') == None else data.get('lvl', 'Не указан')], 22)}\n"
         f"{align_text(['Хиты', data.get('hp', 'Не указаны')], 22)}\n"
         f"{align_text(['Пассивное восприятие', data.get('passive_perception', 'Не указано')], 22)}\n"
         f"{align_text(['Скорость', data.get('speed', 'Не указана')], 22)} футов\n"
@@ -143,39 +143,35 @@ def convert_json_to_char_info(data: dict) -> str:
         f"{align_text(['Инициатива', data.get('initiative', 'Не указана')], 22)}\n"
         f"{align_text(['Вдохновение', 'Да' if data.get('inspiration', False) else 'Нет'], 22)}"
         "```\n\n"
-        f"📜 *_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}\n\n\n"
     )
 
     if 'stats' in data:
         stats = data['stats']
-        card += "⚙️ *_Характеристики:_*\n```Характеристики\n"
-        card += "\n".join(align_text([translate_stat(stat), value], 22) for stat, value in stats.items()) + "```"
-
-    if 'stat_modifiers' in data:
         modifiers = data['stat_modifiers']
-        card += "\n\n📊 *_Модификаторы характеристик:_*\n```Модификаторы\n"
-        card += "\n".join(align_text([translate_stat(stat), value], 22) for stat, value in modifiers.items()) + "```"
+        card += "📊  *_Характеристики:_*\n```Характеристики\n"
+        stat_arr = []
+        for i in range(len(stats)):
+            stat = list(stats.keys())[i]
+            value = list(stats.values())[i]
+            modifier = list(modifiers.values())[i]
+            if modifier >= 0:
+                modifier = "+" + str(modifier)
+            stat_arr.append(align_text([translate_stat(stat), modifier], 22) + f"  ({value})")
+        card += "\n".join(stat_arr) + "```"
 
     if 'skills' in data:
         skills = data['skills']
         card += "\n\n🛠️ *_Навыки:_*\n"
         card += "\n".join(f">\U00002022 {skill}" for skill in skills)
 
-    if 'traits_and_abilities' in data:
-        traits = data['traits_and_abilities']
-        card += "\n\n\n🧬 *_Черты и способности:_*\n"
-        card += "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc)}" for trait, desc in traits.items())
+    backstory = f"📜 *_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}"
 
-    card += f'\n\n\n🛡️ {format_weapons_and_armor(data)}'
+    traits_and_abilities = "🧬 *_Черты и способности:_*\n" + "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc)}" for trait, desc in data['traits_and_abilities'].items())
 
-    if 'inventory' in data:
-        inventory = data['inventory']
-        card += "\n\n🎒 *_Инвентарь:_*\n"
-        card += "\n".join(f">\U00002022 {tg_text_convert(item)}" for item in inventory)
+    ammunition = f'🛡️ {format_weapons_and_armor(data)}'
 
-    if 'languages' in data:
-        languages = data['languages']
-        card += "\n\n\n🗣️ *_Языки:_*\n"
-        card += "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in languages)
+    inventory = "🎒 *_Предметы:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(item)}" for item in data['inventory'])
+
+    languages = "🗣️ *_Языки:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in data['languages'])
         
-    return card
+    return {"main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "inventory": inventory, "languages": languages}
