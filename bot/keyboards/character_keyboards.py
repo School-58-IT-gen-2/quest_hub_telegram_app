@@ -9,7 +9,7 @@ races_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Дварф", callback_data="Дварф"),InlineKeyboardButton(text="Эльф", callback_data="Эльф"),InlineKeyboardButton(text="Полурослик", callback_data="Полурослик")],
         [InlineKeyboardButton(text="Человек", callback_data="Человек"),InlineKeyboardButton(text="Драконорожденный", callback_data="Драконорожденный"),InlineKeyboardButton(text="Гном", callback_data="Гном")],
         [InlineKeyboardButton(text="Полуэльф", callback_data="Полуэльф"),InlineKeyboardButton(text="Полуорк", callback_data="Полуорк"),InlineKeyboardButton(text="Тифлинг", callback_data="Тифлинг")],
-        [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
+        [InlineKeyboardButton(text="Назад", callback_data="char_back")] 
     ])
 
 classes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -17,19 +17,12 @@ classes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Плут", callback_data="Плут"),InlineKeyboardButton(text="Друид", callback_data="Друид"),InlineKeyboardButton(text="Колдун", callback_data="Колдун")],
         [InlineKeyboardButton(text="Монах", callback_data="Монах"),InlineKeyboardButton(text="Паладин", callback_data="Паладин"),InlineKeyboardButton(text="Жрец", callback_data="Жрец")],
         [InlineKeyboardButton(text="Маг", callback_data="Маг"),InlineKeyboardButton(text="Воин", callback_data="Воин"),InlineKeyboardButton(text="Волшебник", callback_data="Волшебник")],
-        [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")] 
+        [InlineKeyboardButton(text="Назад", callback_data="char_back")] 
     ]) 
 
 gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Мужской", callback_data="M"),InlineKeyboardButton(text="Женский", callback_data="W")],
-        [InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
-    ])
-
-what_do_next = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Сохранить персонажа", callback_data="save_character")],
-        [InlineKeyboardButton(text="Изменить персонажа", callback_data="update_character")],
-        [InlineKeyboardButton(text="Удалить персонажа", callback_data="discard_character")],
-        [InlineKeyboardButton(text="Перегенерировать персонажа", callback_data="regenerate_character")],
+        [InlineKeyboardButton(text="Назад", callback_data="char_back")]
     ])
 
 change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
@@ -51,7 +44,7 @@ character_card_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Инвентарь", callback_data="inventory"), InlineKeyboardButton(text="О персонаже", callback_data="main_char_info")],
         [InlineKeyboardButton(text="Заметки", callback_data="notes"), InlineKeyboardButton(text="Заклинания", callback_data="spells")],
         [InlineKeyboardButton(text="Черты и способноси", callback_data="traits"), InlineKeyboardButton(text="Уровень", callback_data="lvl")],
-        [InlineKeyboardButton(text="Удалить", callback_data="main_delete_characterchar_info"), InlineKeyboardButton(text="Перегенерировать", callback_data="regenerate_character")],
+        [InlineKeyboardButton(text="Удалить", callback_data="delete_character"), InlineKeyboardButton(text="Перегенерировать", callback_data="regenerate_character_from_put")],
         [InlineKeyboardButton(text="Назад", callback_data="view_characters")],
     ])
 

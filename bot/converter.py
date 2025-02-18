@@ -27,7 +27,12 @@ TRANSLATIONS = {
     "traits_and_abilities": "Черты и способности",
     "inventory": "Инвентарь",
     "languages": "Языки",
-    "backstory": "Предыстория"
+    "backstory": "Предыстория",
+    "range": "Дальность",
+    "duration": "Длительность",
+    "components": "Компоненты",
+    "description": "Описание",
+    "casting_time": "Время накладывания",
 }
 
 def translate_key(key: str) -> str:
@@ -89,7 +94,7 @@ def align_text(text: list, offset: int) -> str:
     """
     return f"{text[0]}:" + ' ' * (offset - len(text[0])) + str(text[1])
 
-def format_weapons_and_armor(data: dict) -> str:
+def format_ammunition(data: dict) -> str:
     """
     Форматирует вывод амуниции и брони
     
@@ -99,26 +104,51 @@ def format_weapons_and_armor(data: dict) -> str:
     Returns:
         str: Отформатированный текст с амуницией и броней персонажа
     """
-    card = ""
-
-    if "weapons_and_equipment" in data:
-        weapons_and_equipment = data["weapons_and_equipment"]
-        card += f"*_Амуниция:_*\n```Амуниция\n"
-        for name, details in weapons_and_equipment.items():
-            card += f"{name}:\n"
-            for key, value in details.items():
-                if key == "dex_bonus":
-                    value = "Да" if value else "Нет"
-                elif key == "stealth_disadvantage":
-                    value = "Да" if value else "Нет"
-                if isinstance(value, list):
-                    value = ", ".join(value)
-                card += align_text([translate_key(key), value], 22) + "\n"
-            card += "\n"
-        card += "```"
+    card = f"*_Амуниция:_*\n```Амуниция\n"
+    weapons_and_equipment = data["weapons_and_equipment"]
+    for name, details in weapons_and_equipment.items():
+        card += f"{name}:\n"
+        for key, value in details.items():
+            if key == "dex_bonus":
+                value = "Да" if value else "Нет"
+            elif key == "stealth_disadvantage":
+                value = "Да" if value else "Нет"
+            if isinstance(value, list):
+                value = ", ".join(value)
+            card += align_text([translate_key(key), value], 22) + "\n"
+        card += "\n"
+    card += "```"
     return card
 
-def character_card(data: dict) -> str:
+def format_spells(data: dict) -> str:
+    """
+    Форматирует вывод заклинаний
+    
+    Args:
+        data (dict): Словарь с данными персонажа
+    
+    Returns:
+        str: Отформатированный текст с заклинаниями персонажа
+    """
+    card = ""
+    spells = data["spells"]
+    if spells:
+        card += f"*_Заклинания:_*\n```Заклинания\n"
+        for name, details in spells.items():
+            card += f"{name}:\n"
+            for key, value in details.items():
+                if key == 'description':
+                    description = value
+                else:
+                    card += align_text([translate_key(key), value], 22) + "\n"
+            card += description
+            card += "\n\n"
+        card += "```"
+    else:
+        card += '*_Заклинания:_*\n\nУ вашего персонажа нет заклинаний\.'
+    return card
+
+def character_card(data: dict) -> dict:
     """
     Создает лист персонажа по словарю с данными
     
@@ -126,7 +156,7 @@ def character_card(data: dict) -> str:
         data (dict): Словарь с данными персонажа
         
     Returns:    
-        str: Отформатированный текст с листом персонажа
+        dict: Словарь с отформатированными параметрами персонажа.
     """
     card = (
         f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
@@ -156,7 +186,8 @@ def character_card(data: dict) -> str:
             modifier = list(modifiers.values())[i]
             if modifier >= 0:
                 modifier = "+" + str(modifier)
-            stat_arr.append(align_text([translate_stat(stat), modifier], 22) + f"  ({value})")
+            modifier = str(modifier)
+            stat_arr.append(align_text([translate_stat(stat), f'({value})'], 22) + ' ' * (4 - len(str(value))) + modifier)
         card += "\n".join(stat_arr) + "```"
 
     if 'skills' in data:
@@ -164,14 +195,27 @@ def character_card(data: dict) -> str:
         card += "\n\n🛠️ *_Навыки:_*\n"
         card += "\n".join(f">\U00002022 {skill}" for skill in skills)
 
+    name = f'*_{data.get('name', 'Безымянный')} {data.get('surname', '')}_*'
+
+    age = data.get('age', 'Не указан')
+    last_digit = age % 10
+    if last_digit == 0 or last_digit >= 5 or age in range(11, 19):
+        age = f'*_{age} лет_*'
+    elif last_digit == 1:
+        age = f'*_{age} год*'
+    else:
+        age = f'*_{age} года*'
+
     backstory = f"📜 *_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}"
 
-    traits_and_abilities = "🧬 *_Черты и способности:_*\n" + "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc)}" for trait, desc in data['traits_and_abilities'].items())
+    traits_and_abilities = "🧬 *_Черты и способности:_*\n" + "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc).lower()}" for trait, desc in data['traits_and_abilities'].items())
 
-    ammunition = f'🛡️ {format_weapons_and_armor(data)}'
+    ammunition = f'🛡️ {format_ammunition(data)}'
+
+    spells = f'🪄 {format_spells(data)}'
 
     inventory = "🎒 *_Предметы:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(item)}" for item in data['inventory'])
 
     languages = "🗣️ *_Языки:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in data['languages'])
         
-    return {"main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "inventory": inventory, "languages": languages}
+    return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "languages": languages}
