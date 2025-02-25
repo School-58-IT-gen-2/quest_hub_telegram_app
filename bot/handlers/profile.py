@@ -19,7 +19,9 @@ router = Router()
 async def profile(callback_query: types.CallbackQuery):
     """Открытие меню профиля"""
     await callback_query.answer()
+    user = await get_user(callback_query.from_user.id)
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/profile.png")), reply_markup=account_menu_keyboard)
+    await callback_query.message.edit_caption(reply_markup=account_menu_keyboard, caption=f"Имя: {user["username"]}\nВозраст: {user["age"] if user["age"] else "Не указан"}")
 
 @router.callback_query(lambda c: c.data == 'change_profile')
 async def change_profile(callback_query: types.CallbackQuery):
