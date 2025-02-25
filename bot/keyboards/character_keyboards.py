@@ -7,7 +7,7 @@ characters_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 
 races_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Дварф", callback_data="Дварф"),InlineKeyboardButton(text="Эльф", callback_data="Эльф"),InlineKeyboardButton(text="Полурослик", callback_data="Полурослик")],
-        [InlineKeyboardButton(text="Человек", callback_data="Человек"),InlineKeyboardButton(text="Драконорожденный", callback_data="Драконорожденный"),InlineKeyboardButton(text="Гном", callback_data="Гном")],
+        [InlineKeyboardButton(text="Человек", callback_data="Человек"),InlineKeyboardButton(text="Драконид", callback_data="Драконорожденный"),InlineKeyboardButton(text="Гном", callback_data="Гном")],
         [InlineKeyboardButton(text="Полуэльф", callback_data="Полуэльф"),InlineKeyboardButton(text="Полуорк", callback_data="Полуорк"),InlineKeyboardButton(text="Тифлинг", callback_data="Тифлинг")],
         [InlineKeyboardButton(text="Назад", callback_data="char_back")] 
     ])
@@ -61,7 +61,16 @@ main_char_info_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
 async def build_char_kb(chars: list, page: int) -> InlineKeyboardMarkup:
-    """Создает клавиатуру с персонажами пользователя"""
+    """
+    Создает клавиатуру с персонажами пользователя.
+    
+    Args:
+        chars (list): Список с персонажами пользователя.
+        page (int): Номер текущей страницы меню (начиная с нуля).
+
+    Returns:
+        InlineKeyboardMarkup: Клавиатура с персонажами пользователя.
+    """
     names = [[i["name"], i["surname"], str(i["id"])] for i in chars][page * 6:]
     inline_kb = []
     if len(names) <= 3:
