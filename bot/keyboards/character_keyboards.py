@@ -56,31 +56,57 @@ edit_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить", callback_data="edit")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
+back_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Назад", callback_data="back")]])
+
 main_char_info_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Имя", callback_data="name"),InlineKeyboardButton(text="Возраст", callback_data="age")],[InlineKeyboardButton(text="Предыстория",callback_data="backstory"), InlineKeyboardButton(text="Языки",callback_data="languages")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
-async def build_char_kb(chars: list, page: int) -> InlineKeyboardMarkup:
+item_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить название", callback_data="change_name")],
+        [InlineKeyboardButton(text="Изменить описание", callback_data="change_desc")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")]])
+
+async def build_dict_keyboard(buttons: dict, page: int = 0, button_rows: int = 3) -> InlineKeyboardMarkup:
     """
-    Создает клавиатуру с персонажами пользователя.
+    Создает клавиатуру по словарю с данными.
     
     Args:
-        chars (list): Список с персонажами пользователя.
+        buttons (dict): Словарь с кнопками, где ключ – название кнопки, а значение – её данные.
         page (int): Номер текущей страницы меню (начиная с нуля).
+        button_rows (int): Количество строк с кнопками.
 
     Returns:
-        InlineKeyboardMarkup: Клавиатура с персонажами пользователя.
+        InlineKeyboardMarkup: Итоговая клавиатура.
     """
-    names = [[i["name"], i["surname"], str(i["id"])] for i in chars][page * 6:]
+    buttons = [[name, value] for name, value in buttons.items()][page * button_rows * 2:]
     inline_kb = []
-    if len(names) <= 3:
-        for i in names:
-            inline_kb.append([InlineKeyboardButton(text=f"{i[0]} {i[1]}", callback_data=f"{i[2]}")])
+    if len(buttons) <= 3:
+        for i in buttons:
+            inline_kb.append([InlineKeyboardButton(text=f"{i[0]}", callback_data=f"{i[1]}")])
     else:
-        for i in range(0, min(len(names) - 1, 5), 2):
-            inline_kb.append([InlineKeyboardButton(text=f"{names[i][0]} {names[i][1]}", callback_data=f"{names[i][2]}"), InlineKeyboardButton(text=f"{names[i+1][0]} {names[i+1][1]}", callback_data=f"{names[i+1][2]}")])
-        if len(names) == 5:
-            inline_kb.append([InlineKeyboardButton(text=f"{names[4][0]} {names[4][1]}", callback_data=f"{names[4][2]}")])
+        for i in range(0, min(len(buttons) - 1, button_rows * 2 - 1), 2):
+            inline_kb.append([InlineKeyboardButton(text=f"{buttons[i][0]}", callback_data=f"{buttons[i][1]}"), InlineKeyboardButton(text=f"{buttons[i+1][0]}", callback_data=f"{buttons[i+1][1]}")])
+        if len(buttons) == button_rows * 2 - 1:
+            inline_kb.append([InlineKeyboardButton(text=f"{buttons[(button_rows - 1) * 2][0]}", callback_data=f"{buttons[(button_rows - 1) * 2][1]}")])
         
-    inline_kb.append([InlineKeyboardButton(text="⬅️", callback_data=f"char_left_{page}"), InlineKeyboardButton(text="Назад", callback_data="characters"), InlineKeyboardButton(text="➡️", callback_data=f"char_right_{page}")])
+    inline_kb.append([InlineKeyboardButton(text="⬅️", callback_data=f"left_{page}"), InlineKeyboardButton(text="Назад", callback_data="dict_kb_back"), InlineKeyboardButton(text="➡️", callback_data=f"right_{page}")])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb)
+
+async def change_keyboard_page(callback_data: str, buttons: dict, button_rows: int = 3) -> InlineKeyboardMarkup:
+    """
+    Обновляет клавиатуру, созданную по словарю, меняя страницу.
+
+    Args:
+        callback_data (str): Данные, которые пришли от пользователя.
+        buttons (dict): Словарь с кнопками, где ключ – название кнопки, а значение – её данные.
+        button_rows (int): Количество строк с кнопками.
+
+    Returns:
+        InlineKeyboardMarkup: Итоговая клавиатура.
+    """
+    page = int(callback_data.split('_')[-1])
+    direction = -1 if callback_data.split('_')[0] == 'left' else 1
+    if -1 < page + direction < -(-len(buttons) // (button_rows * 2)):
+       return await build_dict_keyboard(buttons, page + direction, button_rows)
