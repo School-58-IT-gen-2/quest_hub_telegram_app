@@ -68,6 +68,12 @@ item_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить описание", callback_data="change_desc")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
+note_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить название", callback_data="change_title")],
+        [InlineKeyboardButton(text="Изменить содержание", callback_data="change_text")],
+        [InlineKeyboardButton(text="Удалить", callback_data="delete_note")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")]])
+
 async def build_dict_keyboard(buttons: dict, page: int = 0, button_rows: int = 3) -> InlineKeyboardMarkup:
     """
     Создает клавиатуру по словарю с данными.
@@ -80,6 +86,7 @@ async def build_dict_keyboard(buttons: dict, page: int = 0, button_rows: int = 3
     Returns:
         InlineKeyboardMarkup: Итоговая клавиатура.
     """
+    length = len(buttons)
     buttons = [[name, value] for name, value in buttons.items()][page * button_rows * 2:]
     inline_kb = []
     if len(buttons) <= 3:
@@ -90,8 +97,10 @@ async def build_dict_keyboard(buttons: dict, page: int = 0, button_rows: int = 3
             inline_kb.append([InlineKeyboardButton(text=f"{buttons[i][0]}", callback_data=f"{buttons[i][1]}"), InlineKeyboardButton(text=f"{buttons[i+1][0]}", callback_data=f"{buttons[i+1][1]}")])
         if len(buttons) == button_rows * 2 - 1:
             inline_kb.append([InlineKeyboardButton(text=f"{buttons[(button_rows - 1) * 2][0]}", callback_data=f"{buttons[(button_rows - 1) * 2][1]}")])
-        
-    inline_kb.append([InlineKeyboardButton(text="⬅️", callback_data=f"left_{page}"), InlineKeyboardButton(text="Назад", callback_data="dict_kb_back"), InlineKeyboardButton(text="➡️", callback_data=f"right_{page}")])
+    if length > button_rows * 2:
+        inline_kb.append([InlineKeyboardButton(text="⬅️", callback_data=f"left_{page}"), InlineKeyboardButton(text="Назад", callback_data="dict_kb_back"), InlineKeyboardButton(text="➡️", callback_data=f"right_{page}")])
+    else:
+        inline_kb.append([InlineKeyboardButton(text="Назад", callback_data="dict_kb_back")])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb)
 
 async def change_keyboard_page(callback_data: str, buttons: dict, button_rows: int = 3) -> InlineKeyboardMarkup:
@@ -110,3 +119,50 @@ async def change_keyboard_page(callback_data: str, buttons: dict, button_rows: i
     direction = -1 if callback_data.split('_')[0] == 'left' else 1
     if -1 < page + direction < -(-len(buttons) // (button_rows * 2)):
        return await build_dict_keyboard(buttons, page + direction, button_rows)
+    
+async def build_notes_keyboard(buttons: dict, page: int = 0, button_rows: int = 2) -> InlineKeyboardMarkup:
+    """
+    Создает клавиатуру заметок по словарю с данными.
+    
+    Args:
+        buttons (dict): Словарь с кнопками, где ключ – название кнопки, а значение – её данные.
+        page (int): Номер текущей страницы меню (начиная с нуля).
+        button_rows (int): Количество строк с кнопками.
+
+    Returns:
+        InlineKeyboardMarkup: Итоговая клавиатура.
+    """
+    inline_kb = [[InlineKeyboardButton(text="Новая заметка", callback_data="create_note")]]
+    length = len(buttons)
+    if buttons:
+        buttons = [[name, value] for name, value in buttons.items()][page * button_rows * 2:]
+        if len(buttons) <= 3:
+            for i in buttons:
+                inline_kb.append([InlineKeyboardButton(text=f"{i[0]}", callback_data=f"{i[1]}")])
+        else:
+            for i in range(0, min(len(buttons) - 1, button_rows * 2 - 1), 2):
+                inline_kb.append([InlineKeyboardButton(text=f"{buttons[i][0]}", callback_data=f"{buttons[i][1]}"), InlineKeyboardButton(text=f"{buttons[i+1][0]}", callback_data=f"{buttons[i+1][1]}")])
+            if len(buttons) == button_rows * 2 - 1:
+                inline_kb.append([InlineKeyboardButton(text=f"{buttons[(button_rows - 1) * 2][0]}", callback_data=f"{buttons[(button_rows - 1) * 2][1]}")])
+    if length > button_rows * 2:
+        inline_kb.append([InlineKeyboardButton(text="⬅️", callback_data=f"left_{page}"), InlineKeyboardButton(text="Назад", callback_data="dict_kb_back"), InlineKeyboardButton(text="➡️", callback_data=f"right_{page}")])
+    else:
+        inline_kb.append([InlineKeyboardButton(text="Назад", callback_data="dict_kb_back")]) 
+    return InlineKeyboardMarkup(inline_keyboard=inline_kb)
+
+async def change_notes_keyboard_page(callback_data: str, buttons: dict, button_rows: int = 3) -> InlineKeyboardMarkup:
+    """
+    Обновляет клавиатуру заметок, созданную по словарю, меняя страницу.
+
+    Args:
+        callback_data (str): Данные, которые пришли от пользователя.
+        buttons (dict): Словарь с кнопками, где ключ – название кнопки, а значение – её данные.
+        button_rows (int): Количество строк с кнопками.
+
+    Returns:
+        InlineKeyboardMarkup: Итоговая клавиатура.
+    """
+    page = int(callback_data.split('_')[-1])
+    direction = -1 if callback_data.split('_')[0] == 'left' else 1
+    if -1 < page + direction < -(-len(buttons) // (button_rows * 2)):
+       return await build_notes_keyboard(buttons, page + direction, button_rows)

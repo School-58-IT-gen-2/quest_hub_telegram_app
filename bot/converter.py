@@ -83,7 +83,7 @@ def tg_text_convert(text: str) -> str:
         text = text.replace(i, '\\' + i)
     return text
 
-def align_text(text: list, offset: int) -> str:
+def align_text(text: list, offset: int, max_column_length: int = 18) -> str:
     """
     Выравнивает текст в 2 столбца.
 
@@ -94,15 +94,15 @@ def align_text(text: list, offset: int) -> str:
     Returns:
         str: Отформатированный текст.
     """
-    if len(str(text[1])) <= 20:
+    if len(str(text[1])) <= max_column_length:
         return f"{text[0]}:" + ' ' * (offset - len(text[0])) + str(text[1])
     right_column = str(text[1]).split()
     right_row = ''
     right_rows = []
-    if len(str(text[1])) > 20:
+    if len(str(text[1])) > max_column_length:
         i = 0
         while i < len(right_column):
-            while len(right_row + right_column[i]) < 20:
+            while len(right_row + right_column[i]) < max_column_length:
                 right_row += f' {right_column[i]}'
                 i += 1
                 if i == len(right_column):
@@ -136,13 +136,14 @@ def format_ammunition(data: dict) -> dict:
         data (dict): Словарь с данными персонажа.
     
     Returns:
-        dict: Словарь с отформатированными снаряжением.
+        dict: Словарь с отформатированным снаряжением.
     """
     weapons_and_equipment = data["weapons_and_equipment"]
     weapons_dict = dict()
     for weapon in weapons_and_equipment:
         card = f'```Амуниция\n{weapon["name"]}\n'
         for key, value in weapon.items():
+            description = ""
             if key == "dex_bonus":
                 value = "Да" if value else "Нет"
             elif key == "stealth_disadvantage":
@@ -170,13 +171,68 @@ def format_ammunition(data: dict) -> dict:
                 value = f'{value} шт.'
             if isinstance(value, list):
                 value = ", ".join(value)
-            if key != "name" and key != "id":
+            if key == "description":
+                description = value
+            elif key != "name" and key != "id" and value:
                 card += align_text([translate_key(key), value], 22) + "\n"
+            card += description
         weapons_dict[weapon["id"]] = card + '```'
         card = ""
     return weapons_dict
 
-def format_spells(data: dict) -> list:
+def format_inventory(data: dict) -> dict:
+    """
+    Форматирует вывод предметов инвентаря.
+    
+    Args:
+        data (dict): Словарь с данными персонажа.
+    
+    Returns:
+        dict: Словарь с отформатированными предметами.
+    """
+    invenotry = data["inventory"]
+    invenotry_dict = dict()
+    for item in invenotry:
+        card = f'```Снаряжение\n{item["name"]}\n'
+        for key, value in item.items():
+            description = ""
+            if key == "dex_bonus":
+                value = "Да" if value else "Нет"
+            elif key == "stealth_disadvantage":
+                value = "Да" if value else "Нет"
+            elif key == 'weight':
+                value = int(value)
+                last_digit = value % 10
+                if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
+                    value = f'{value} фунтов'
+                elif last_digit == 1:
+                    value = f'{value} фунт'
+                else:
+                    value = f'{value} фунта'
+            elif key == 'cost':
+                value = int(value)
+                last_digit = value % 10
+                if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
+                    value = f'{value} золотых'
+                elif last_digit == 1:
+                    value = f'{value} золотой'
+                else:
+                    value = f'{value} золотых'
+            elif key == 'count':
+                value = int(value)
+                value = f'{value} шт.'
+            if isinstance(value, list):
+                value = ", ".join(value)
+            if key == "description":
+                description = value
+            elif key != "name" and key != "id" and value:
+                card += align_text([translate_key(key), value], 22) + "\n"
+            card += description
+        invenotry_dict[item["id"]] = card + '```'
+        card = ""
+    return invenotry_dict
+
+def format_spells(data: dict) -> str:
     """
     Форматирует вывод заклинаний.
     
@@ -184,24 +240,42 @@ def format_spells(data: dict) -> list:
         data (dict): Словарь с данными персонажа.
     
     Returns:
-        list: Список с отформатированными заклинаниями персонажа.
+        str: Отформатированные заклинания.
     """
-    card = ""
+    card = "```Заклинания"
     spells = data["spells"]
-    spells_dict = []
+    spells_dict = dict()
     if spells:
         for name, details in spells.items():
-            card += f"```Заклинания\n{name}:\n"
+            card += f"\n{name}\n"
             spell_name = name
             for key, value in details.items():
                 if key == 'description':
                     description = value
                 else:
                     card += align_text([translate_key(key), value], 22) + "\n"
-            spells_dict[{spell_name}] = card + description + "```"
-            card = ""
-    # card += '🪄 *_Заклинания:_*\n\nУ вашего персонажа нет заклинаний\.'
-    return spells_dict
+            card += description + '\n'
+        card += '```'
+    else:
+        card += '\nУ вашего персонажа нет заклинаний\.'
+    return card
+
+def format_notes(data: dict) -> dict:
+    """
+    Форматирует вывод заметок.
+    
+    Args:
+        data (dict): Словарь с данными персонажа.
+    
+    Returns:
+        dict: Словарь с отформатированными заметками.
+    """
+    notes = data["notes"]
+    notes_dict = dict()
+    if notes:
+        for note in notes:
+            notes_dict[note["id"]] = f'*_{note["title"]}_*\n\n{note["text"]}'
+    return notes_dict
 
 def character_card(data: dict) -> dict:
     """
@@ -269,8 +343,10 @@ def character_card(data: dict) -> dict:
 
     spells = format_spells(data)
 
-    inventory = "🎒 *_Предметы:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(item["name"])}" for item in data['inventory'])
+    inventory = format_inventory(data)
+
+    notes = format_notes(data)
 
     languages = "🗣️ *_Языки:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in data['languages'])
         
-    return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "languages": languages}
+    return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "notes": notes, "languages": languages}
