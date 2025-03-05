@@ -274,7 +274,7 @@ def format_notes(data: dict) -> dict:
     notes_dict = dict()
     if notes:
         for note in notes:
-            notes_dict[note["id"]] = f'*_{note["title"]}_*\n\n{note["text"]}'
+            notes_dict[note["id"]] = f'*_{tg_text_convert(note["title"])}_*\n\n{tg_text_convert(note["text"])}'
     return notes_dict
 
 def character_card(data: dict) -> dict:

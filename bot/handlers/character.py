@@ -33,10 +33,8 @@ async def view_characters(callback_query: types.CallbackQuery, state: FSMContext
     if len(user_chars) == 0:
         await callback_query.message.edit_caption(caption="У вас ещё нет персонажей", reply_markup=characters_keyboard)
     else:
-        char_dict = dict()
-        for char in user_chars:
-            char_dict[f'{char["name"]} {char["surname"]}'] = str(char["id"])
-        await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup=await build_dict_keyboard(char_dict))
+        char_arr = [[f'{char["name"]} {char["surname"]}', str(char["id"])] for char in user_chars]
+        await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/characters.png")), reply_markup=await build_arr_keyboard(char_arr))
         await state.set_state(Form.view_character)
 
 @router.callback_query(Form.view_character)
@@ -45,10 +43,8 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
     if 'left' in callback_query.data or 'right' in callback_query.data:
         user_chars = await get_char_by_user_id(callback_query.from_user.id)
-        char_dict = dict()
-        for char in user_chars:
-            char_dict[f'{char["name"]} {char["surname"]}'] = str(char["id"])
-        await callback_query.message.edit_caption(reply_markup=await change_keyboard_page(callback_query.data, char_dict))
+        char_arr = [[f'{char["name"]} {char["surname"]}', str(char["id"])] for char in user_chars]
+        await callback_query.message.edit_reply_markup(reply_markup=await change_keyboard_page(callback_query.data, char_arr))
     elif callback_query.data == "dict_kb_back":
         await characters(callback_query, state)
     else:
@@ -69,11 +65,10 @@ async def view_char_params(callback_query: types.CallbackQuery, state: FSMContex
         await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     if callback_query.data == "notes":
-        notes_dict = dict()
+        notes_arr = []
         if char["notes"]:
-            for note in char["notes"]:
-                notes_dict[note["title"]] = note["id"]
-        await callback_query.message.edit_text(text='✏️ *_Заметки:_*', reply_markup=await build_notes_keyboard(notes_dict),parse_mode="MarkdownV2")
+            notes_arr = [[note["title"], note["id"]] for note in char["notes"]]
+        await callback_query.message.edit_text(text='✏️ *_Заметки:_*', reply_markup=await build_notes_keyboard(notes_arr),parse_mode="MarkdownV2")
         await state.set_state(Form.notes_menu)
     if callback_query.data == "traits":
         await callback_query.message.edit_text(text=character_card(char)["traits_and_abilities"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
@@ -88,10 +83,10 @@ async def view_char_params(callback_query: types.CallbackQuery, state: FSMContex
         await callback_query.message.edit_text(text='🪄 *_Заклинания:_*\n' + character_card(char)["spells"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.spells_menu)
     if callback_query.data == 'delete_character':
-        await callback_query.message.edit_text(text="Удалённого персонажа невозможно восстановить. Продолжить?", reply_markup=yes_or_no_keyboard)
+        await callback_query.message.edit_text(text="Удалённого персонажа *невозможно восстановить*\. Продолжить\?", reply_markup=yes_or_no_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.delete_character_confirm)
     if callback_query.data == 'regenerate_character_from_put':
-        await callback_query.message.edit_text(text="Весь текущий прогресс персонажа будет утерян. Продолжить?", reply_markup=yes_or_no_keyboard)
+        await callback_query.message.edit_text(text="Весь текущий *прогресс персонажа будет утерян*\. Продолжить\?", reply_markup=yes_or_no_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.regenerate_char)
 
 @router.callback_query(Form.notes_menu)
@@ -101,11 +96,10 @@ async def notes_menu(callback_query: types.CallbackQuery, state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     if 'left' in callback_query.data or 'right' in callback_query.data:
-        notes_dict = dict()
+        notes_arr = []
         if char["notes"]:
-            for note in char["notes"]:
-                notes_dict[note["title"]] = note["id"]
-        await callback_query.message.edit_caption(reply_markup=await change_notes_keyboard_page(callback_query.data, notes_dict))
+            notes_arr = [[note["title"], note["id"]] for note in char["notes"]]
+        await callback_query.message.edit_reply_markup(reply_markup=await change_notes_keyboard_page(callback_query.data, notes_arr))
     elif callback_query.data == "dict_kb_back":
         await callback_query.message.edit_text(text=character_card(char)["main_char_info"],parse_mode="MarkdownV2",reply_markup=character_card_keyboard) 
         await state.set_state(Form.character_card)
@@ -150,11 +144,10 @@ async def note_menu(callback_query: types.CallbackQuery, state: FSMContext):
     char = data["char"]
     item_id = data["item_id"]
     if callback_query.data == "back":
-        notes_dict = dict()
+        notes_arr = []
         if char["notes"]:
-            for note in char["notes"]:
-                notes_dict[note["title"]] = note["id"]
-        await callback_query.message.edit_text(text='✏️ *_Заметки:_*', reply_markup=await build_notes_keyboard(notes_dict),parse_mode="MarkdownV2")
+            notes_arr = [[note["title"], note["id"]] for note in char["notes"]]
+        await callback_query.message.edit_text(text='✏️ *_Заметки:_*', reply_markup=await build_notes_keyboard(notes_arr),parse_mode="MarkdownV2")
         await state.set_state(Form.notes_menu)
     elif callback_query.data == "change_title":
         await callback_query.message.edit_text(text=f'{character_card(char)["notes"][item_id]}\n\nВведите новое название:', parse_mode="MarkdownV2")
@@ -162,6 +155,31 @@ async def note_menu(callback_query: types.CallbackQuery, state: FSMContext):
     elif callback_query.data == "change_text":
         await callback_query.message.edit_text(text=f'{character_card(char)["notes"][item_id]}\n\nВведите новое содержание:', parse_mode="MarkdownV2")
         await state.set_state(Form.change_note_text)
+    elif callback_query.data == "delete_note":
+        await callback_query.message.edit_text(text=f'Удалённую заметку *невозможно восстановить*\. Продолжить\?', reply_markup=yes_or_no_keyboard, parse_mode="MarkdownV2")
+        await state.set_state(Form.delete_note)
+
+@router.callback_query(Form.delete_note)
+async def discard_note(callback_query: types.CallbackQuery, state: FSMContext):
+    """Удаление или отмена удаления заметки"""
+    await callback_query.answer()
+    data = await state.get_data()
+    char = data["char"]
+    char_id = char["id"]
+    item_id = data["item_id"]
+    if callback_query.data == 'yes':
+        await delete_note(char_id, item_id)
+        char = await get_char(char_id)
+        char = char[0]
+        await state.update_data({"char": char})
+        notes_arr = []
+        if char["notes"]:
+            notes_arr = [[note["title"], note["id"]] for note in char["notes"]]
+        await callback_query.message.edit_text(text='✏️ *_Заметки:_*\n\nВы удалили вашу заметку\.', reply_markup=await build_notes_keyboard(notes_arr),parse_mode="MarkdownV2")
+        await state.set_state(Form.notes_menu)
+    else:
+        await callback_query.message.edit_text(text=character_card(char)["notes"][item_id], reply_markup=note_keyboard, parse_mode="MarkdownV2")
+        await state.set_state(Form.note_menu)
 
 @router.message(Form.change_note_title)
 async def change_note_title(message: types.Message, state: FSMContext):
@@ -175,7 +193,7 @@ async def change_note_title(message: types.Message, state: FSMContext):
     char = await get_char(char_id)
     char = char[0]
     await state.update_data({"char": char})
-    await state.set_state(Form.inventory_item_menu)
+    await state.set_state(Form.note_menu)
     await message.answer(text=character_card(char)["notes"][item_id], reply_markup=note_keyboard, parse_mode="MarkdownV2")
 
 @router.message(Form.change_note_text)
@@ -190,7 +208,7 @@ async def change_note_text(message: types.Message, state: FSMContext):
     char = await get_char(char_id)
     char = char[0]
     await state.update_data({"char": char})
-    await state.set_state(Form.inventory_item_menu)
+    await state.set_state(Form.note_menu)
     await message.answer(text=character_card(char)["notes"][item_id], reply_markup=note_keyboard, parse_mode="MarkdownV2")
 
 @router.callback_query(Form.main_char_info_menu)
@@ -292,16 +310,12 @@ async def inventory(callback_query: types.CallbackQuery, state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == "items":
-        item_dict = dict()
-        for item in char["inventory"]:
-            item_dict[item["name"]] = item["id"]
-        await callback_query.message.edit_text(text=f'🛠️ *_Снаряжение:_*', reply_markup=await build_dict_keyboard(item_dict),parse_mode="MarkdownV2")
+        items_arr = [[item["name"], item["id"]] for item in char["inventory"]]
+        await callback_query.message.edit_text(text=f'🛠️ *_Снаряжение:_*', reply_markup=await build_arr_keyboard(items_arr),parse_mode="MarkdownV2")
         await state.set_state(Form.items_menu)
     if callback_query.data == "ammunition":
-        ammunition_dict = dict()
-        for weapon in char["weapons_and_equipment"]:
-            ammunition_dict[weapon["name"]] = weapon["id"]
-        await callback_query.message.edit_text(text=f'🛡️ *_Амуниция:_*', reply_markup=await build_dict_keyboard(ammunition_dict),parse_mode="MarkdownV2")
+        ammunition_arr = [[weapon["name"], weapon["id"]] for weapon in char["weapons_and_equipment"]]
+        await callback_query.message.edit_text(text=f'🛡️ *_Амуниция:_*', reply_markup=await build_arr_keyboard(ammunition_arr),parse_mode="MarkdownV2")
         await state.set_state(Form.ammunition_menu)
     if callback_query.data == "exp":
         await callback_query.message.edit_text(text=f'*_Текущий опыт:_* {char['experience']}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
@@ -320,10 +334,8 @@ async def items_menu(callback_query: types.CallbackQuery, state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     if 'left' in callback_query.data or 'right' in callback_query.data:
-        item_dict = dict()
-        for item in char["inventory"]:
-            item_dict[item["name"]] = item["id"]
-        await callback_query.message.edit_caption(reply_markup=await change_keyboard_page(callback_query.data, item_dict))
+        items_arr = [[item["name"], item["id"]] for item in char["inventory"]]
+        await callback_query.message.edit_reply_markup(reply_markup=await change_keyboard_page(callback_query.data, items_arr))
     elif callback_query.data == "dict_kb_back":
         await callback_query.message.edit_text(text='🎒 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
@@ -340,10 +352,8 @@ async def inventory_item_menu(callback_query: types.CallbackQuery, state: FSMCon
     char = data["char"]
     item_id = data["item_id"]
     if callback_query.data == "back":
-        item_dict = dict()
-        for item in char["inventory"]:
-            item_dict[item["name"]] = item["id"]
-        await callback_query.message.edit_text(text=f'🛠️ *_Снаряжение:_*', reply_markup=await build_dict_keyboard(item_dict),parse_mode="MarkdownV2")
+        items_arr = [[item["name"], item["id"]] for item in char["inventory"]]
+        await callback_query.message.edit_text(text=f'🛠️ *_Снаряжение:_*', reply_markup=await build_arr_keyboard(items_arr),parse_mode="MarkdownV2")
         await state.set_state(Form.items_menu)
     elif callback_query.data == "change_name":
         await callback_query.message.edit_text(text=f'{character_card(char)["inventory"][item_id]}\n\nВведите новое название:', parse_mode="MarkdownV2")
@@ -421,10 +431,8 @@ async def ammunition_menu(callback_query: types.CallbackQuery, state: FSMContext
     char = await state.get_data()
     char = char["char"]
     if 'left' in callback_query.data or 'right' in callback_query.data:
-        ammunition_dict = dict()
-        for weapon in char["weapons_and_equipment"]:
-            ammunition_dict[weapon["name"]] = weapon["id"]
-        await callback_query.message.edit_caption(reply_markup=await change_keyboard_page(callback_query.data, ammunition_dict))
+        ammunition_arr = [[weapon["name"], weapon["id"]] for weapon in char["weapons_and_equipment"]]
+        await callback_query.message.edit_reply_markup(reply_markup=await change_keyboard_page(callback_query.data, ammunition_arr))
     elif callback_query.data == "dict_kb_back":
         await callback_query.message.edit_text(text='🎒 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
@@ -441,10 +449,8 @@ async def ammunition_item_menu(callback_query: types.CallbackQuery, state: FSMCo
     char = data["char"]
     item_id = data["item_id"]
     if callback_query.data == "back":
-        ammunition_dict = dict()
-        for weapon in char["weapons_and_equipment"]:
-            ammunition_dict[weapon["name"]] = weapon["id"]
-        await callback_query.message.edit_text(text=f'🛡️ *_Амуниция:_*', reply_markup=await build_dict_keyboard(ammunition_dict),parse_mode="MarkdownV2")
+        ammunition_arr = [[weapon["name"], weapon["id"]] for weapon in char["weapons_and_equipment"]]
+        await callback_query.message.edit_text(text=f'🛡️ *_Амуниция:_*', reply_markup=await build_arr_keyboard(ammunition_arr),parse_mode="MarkdownV2")
         await state.set_state(Form.ammunition_menu)
     elif callback_query.data == "change_name":
         await callback_query.message.edit_text(text=f'{character_card(char)["ammunition"][item_id]}\n\nВведите новое название:', parse_mode="MarkdownV2")
@@ -613,7 +619,7 @@ async def enter_char_gender(callback_query: types.CallbackQuery, state: FSMConte
 async def discard_character(callback_query: types.CallbackQuery,state: FSMContext):
     """Открытие подтверждения удаления персонажа"""
     await callback_query.answer()
-    await callback_query.message.edit_text(text="Вы действительно хотите удалить персонажа?", reply_markup=yes_or_no_keyboard)
+    await callback_query.message.edit_text(text="Удалённого персонажа *невозможно восстановить*\. Продолжить\?", reply_markup=yes_or_no_keyboard,parse_mode="MarkdownV2")
     await state.set_state(Form.discard_character)
     
 @router.callback_query(Form.discard_character)
@@ -630,4 +636,4 @@ async def discard_character(callback_query: types.CallbackQuery, state: FSMConte
         await state.update_data({"base_char_info" : base_info})
         await state.update_data({"char" : char})
         await callback_query.message.delete()
-        await callback_query.message.answer(text=f"{character_card(char)["main_char_info"]}\n\nВы отменили удаление персонажа",reply_markup=character_card_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.answer(text=f"{character_card(char)["main_char_info"]}",reply_markup=character_card_keyboard,parse_mode="MarkdownV2")
