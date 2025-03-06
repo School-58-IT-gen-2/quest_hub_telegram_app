@@ -36,7 +36,7 @@ TRANSLATIONS = {
     "count": "Количество"
 }
 
-def translate_key(key: str) -> str:
+async def translate_key(key: str) -> str:
     """
     Переводит название параметра на русский.
 
@@ -48,7 +48,7 @@ def translate_key(key: str) -> str:
     """
     return TRANSLATIONS.get(key, key)
 
-def translate_stat(stat: str) -> str:
+async def translate_stat(stat: str) -> str:
     """
     Переводит название характеристики на русский.
     
@@ -68,7 +68,7 @@ def translate_stat(stat: str) -> str:
     }
     return stat_translations.get(stat, stat.capitalize())
 
-def tg_text_convert(text: str) -> str:
+async def tg_text_convert(text: str) -> str:
     """
     Форматирует текст для отправки в Telegram.
     
@@ -83,7 +83,7 @@ def tg_text_convert(text: str) -> str:
         text = text.replace(i, '\\' + i)
     return text
 
-def align_text(text: list, offset: int, max_column_length: int = 18) -> str:
+async def align_text(text: list, offset: int, max_column_length: int = 18) -> str:
     """
     Выравнивает текст в 2 столбца.
 
@@ -114,7 +114,7 @@ def align_text(text: list, offset: int, max_column_length: int = 18) -> str:
         result_string += '\n' + ' ' * offset + right_rows[i]
     return result_string
 
-def check_int(string: str) -> bool:
+async def check_int(string: str) -> bool:
         """
         Определяет, является ли строка целым числом.
 
@@ -128,7 +128,7 @@ def check_int(string: str) -> bool:
             return string[1:].isdigit()
         return string.isdigit()
 
-def format_ammunition(data: dict) -> dict:
+async def format_ammunition(data: dict) -> dict:
     """
     Форматирует вывод амуниции и брони.
     
@@ -148,7 +148,7 @@ def format_ammunition(data: dict) -> dict:
                 value = "Да" if value else "Нет"
             elif key == "stealth_disadvantage":
                 value = "Да" if value else "Нет"
-            elif key == 'weight':
+            elif key == 'weight' and value:
                 value = int(value)
                 last_digit = value % 10
                 if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
@@ -157,7 +157,7 @@ def format_ammunition(data: dict) -> dict:
                     value = f'{value} фунт'
                 else:
                     value = f'{value} фунта'
-            elif key == 'cost':
+            elif key == 'cost' and value:
                 value = int(value)
                 last_digit = value % 10
                 if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
@@ -166,21 +166,21 @@ def format_ammunition(data: dict) -> dict:
                     value = f'{value} золотой'
                 else:
                     value = f'{value} золотых'
-            elif key == 'count':
+            elif key == 'count' and value:
                 value = int(value)
                 value = f'{value} шт.'
             if isinstance(value, list):
                 value = ", ".join(value)
-            if key == "description":
+            if key == "description" and value:
                 description = value
             elif key != "name" and key != "id" and value:
-                card += align_text([translate_key(key), value], 22) + "\n"
+                card += await align_text([await translate_key(key), value], 22) + "\n"
             card += description
         weapons_dict[weapon["id"]] = card + '```'
         card = ""
     return weapons_dict
 
-def format_inventory(data: dict) -> dict:
+async def format_inventory(data: dict) -> dict:
     """
     Форматирует вывод предметов инвентаря.
     
@@ -200,7 +200,7 @@ def format_inventory(data: dict) -> dict:
                 value = "Да" if value else "Нет"
             elif key == "stealth_disadvantage":
                 value = "Да" if value else "Нет"
-            elif key == 'weight':
+            elif key == 'weight' and value:
                 value = int(value)
                 last_digit = value % 10
                 if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
@@ -209,7 +209,7 @@ def format_inventory(data: dict) -> dict:
                     value = f'{value} фунт'
                 else:
                     value = f'{value} фунта'
-            elif key == 'cost':
+            elif key == 'cost' and value:
                 value = int(value)
                 last_digit = value % 10
                 if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
@@ -218,21 +218,21 @@ def format_inventory(data: dict) -> dict:
                     value = f'{value} золотой'
                 else:
                     value = f'{value} золотых'
-            elif key == 'count':
+            elif key == 'count' and value:
                 value = int(value)
                 value = f'{value} шт.'
             if isinstance(value, list):
                 value = ", ".join(value)
-            if key == "description":
+            if key == "description" and value:
                 description = value
             elif key != "name" and key != "id" and value:
-                card += align_text([translate_key(key), value], 22) + "\n"
+                card += await align_text([await translate_key(key), value], 22) + "\n"
             card += description
         invenotry_dict[item["id"]] = card + '```'
         card = ""
     return invenotry_dict
 
-def format_spells(data: dict) -> str:
+async def format_spells(data: dict) -> str:
     """
     Форматирует вывод заклинаний.
     
@@ -245,6 +245,7 @@ def format_spells(data: dict) -> str:
     card = "```Заклинания"
     spells = data["spells"]
     spells_dict = dict()
+    description = ""
     if spells:
         for name, details in spells.items():
             card += f"\n{name}\n"
@@ -253,14 +254,14 @@ def format_spells(data: dict) -> str:
                 if key == 'description':
                     description = value
                 else:
-                    card += align_text([translate_key(key), value], 22) + "\n"
+                    card += await align_text([await translate_key(key), value], 22) + "\n"
             card += description + '\n'
         card += '```'
     else:
-        card += '\nУ вашего персонажа нет заклинаний\.'
+        card = '\nУ вашего персонажа нет заклинаний\.'
     return card
 
-def format_notes(data: dict) -> dict:
+async def format_notes(data: dict) -> dict:
     """
     Форматирует вывод заметок.
     
@@ -274,10 +275,10 @@ def format_notes(data: dict) -> dict:
     notes_dict = dict()
     if notes:
         for note in notes:
-            notes_dict[note["id"]] = f'*_{tg_text_convert(note["title"])}_*\n\n{tg_text_convert(note["text"])}'
+            notes_dict[note["id"]] = f'*_{await tg_text_convert(note["title"])}_*\n\n{await tg_text_convert(note["text"])}'
     return notes_dict
 
-def character_card(data: dict) -> dict:
+async def character_card(data: dict) -> dict:
     """
     Создает лист персонажа по словарю с данными.
     
@@ -300,16 +301,16 @@ def character_card(data: dict) -> dict:
         f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
         "👤 *_Основные параметры:_*\n"
         "```Параметры\n"
-        f"{align_text(['Возраст', age[2:-2]], 22)}\n"
-        f"{align_text(['Раса', data.get('subrace', 'Не указана') if data.get('subrace', 'Не указана') else data.get('race', 'Не указана')], 22)}\n"
-        f"{align_text(['Класс', data.get('character_class', 'Не указан')], 22)}\n"
-        f"{align_text(['Уровень', 1 if data.get('lvl', 'Не указан') == None else data.get('lvl', 'Не указан')], 22)}\n"
-        f"{align_text(['Хиты', data.get('hp', 'Не указаны')], 22)}\n"
-        f"{align_text(['Пассивное восприятие', data.get('passive_perception', 'Не указано')], 22)}\n"
-        f"{align_text(['Скорость', data.get('speed', 'Не указана')], 22)} футов\n"
-        f"{align_text(['Мировоззрение', data.get('worldview', 'Не указано')], 22)}\n"
-        f"{align_text(['Инициатива', data.get('initiative', 'Не указана')], 22)}\n"
-        f"{align_text(['Вдохновение', 'Да' if data.get('inspiration', False) else 'Нет'], 22)}"
+        f"{await align_text(['Возраст', age[2:-2]], 22)}\n"
+        f"{await align_text(['Раса', data.get('subrace', 'Не указана') if data.get('subrace', 'Не указана') else data.get('race', 'Не указана')], 22)}\n"
+        f"{await align_text(['Класс', data.get('character_class', 'Не указан')], 22)}\n"
+        f"{await align_text(['Уровень', 1 if data.get('lvl', 'Не указан') == None else data.get('lvl', 'Не указан')], 22)}\n"
+        f"{await align_text(['Хиты', data.get('hp', 'Не указаны')], 22)}\n"
+        f"{await align_text(['Пассивное восприятие', data.get('passive_perception', 'Не указано')], 22)}\n"
+        f"{await align_text(['Скорость', data.get('speed', 'Не указана')], 22)} футов\n"
+        f"{await align_text(['Мировоззрение', data.get('worldview', 'Не указано')], 22)}\n"
+        f"{await align_text(['Инициатива', data.get('initiative', 'Не указана')], 22)}\n"
+        f"{await align_text(['Вдохновение', 'Да' if data.get('inspiration', False) else 'Нет'], 22)}"
         "```\n\n"
     )
 
@@ -325,7 +326,7 @@ def character_card(data: dict) -> dict:
             if modifier >= 0:
                 modifier = "+" + str(modifier)
             modifier = str(modifier)
-            stat_arr.append(align_text([translate_stat(stat), f'({value})'], 22) + ' ' * (4 - len(str(value))) + modifier)
+            stat_arr.append(await align_text([await translate_stat(stat), f'({value})'], 22) + ' ' * (4 - len(str(value))) + modifier)
         card += "\n".join(stat_arr) + "```"
 
     if 'skills' in data:
@@ -335,18 +336,24 @@ def character_card(data: dict) -> dict:
 
     name = f'*_{data.get('name', 'Безымянный')} {data.get('surname', '')}_*'
 
-    backstory = f"📜 *_Предыстория:_*\n>{tg_text_convert(data.get('backstory', 'Нет данных'))}"
+    backstory = f"📜 *_Предыстория:_*\n>{await tg_text_convert(data.get('backstory', 'Нет данных'))}"
 
-    traits_and_abilities = "🧬 *_Черты и способности:_*\n" + "\n".join(f">\U00002022 *{trait}* – {tg_text_convert(desc).lower()}" for trait, desc in data['traits_and_abilities'].items())
+    traits_arr = []
+    for trait, desc in data['traits_and_abilities'].items():
+        traits_arr.append(f">\U00002022 *{trait}* – {(await tg_text_convert(desc)).lower()}")
+    traits_and_abilities = "🧬 *_Черты и способности:_*\n" + "\n".join(traits_arr)
 
-    ammunition = format_ammunition(data)
+    ammunition = await format_ammunition(data)
 
-    spells = format_spells(data)
+    spells = await format_spells(data)
 
-    inventory = format_inventory(data)
+    inventory = await format_inventory(data)
 
-    notes = format_notes(data)
+    notes = await format_notes(data)
 
-    languages = "🗣️ *_Языки:_*\n" + "\n".join(f">\U00002022 {tg_text_convert(language)}" for language in data['languages'])
+    languages_arr = []
+    for language in data['languages']:
+        languages_arr.append(f">\U00002022 {await tg_text_convert(language)}")
+    languages = "🗣️ *_Языки:_*\n" + "\n".join(languages_arr)
         
     return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "notes": notes, "languages": languages}
