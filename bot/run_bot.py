@@ -13,7 +13,6 @@ from handlers import character, commands, profile, session
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
