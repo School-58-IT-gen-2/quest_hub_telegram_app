@@ -4,12 +4,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-async def get_char(char_id: int) -> dict:
+async def get_char(char_id: str) -> dict:
     """
     Запрос на получение персонажа по его ID в базе данных.
     
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
 
     Returns:
         dict: Словарь с данными персонажа.
@@ -30,13 +30,13 @@ async def create_char(char_data: dict) -> dict:
     response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list",json=char_data)
     return response.json()
 
-async def update_char(char_data: dict, char_id: int) -> dict:
+async def update_char(char_data: dict, char_id: str) -> dict:
     """
     Запрос на обновление данных персонажа по словарю с данными и его ID в базе данных.
     
     Args:
         char_data (dict): Словарь с данными персонажа.
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
 
     Returns:
         dict: Словарь с новыми данными персонажа.
@@ -44,12 +44,12 @@ async def update_char(char_data: dict, char_id: int) -> dict:
     response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list",json=char_data,params={"character_id": char_id})
     return response.json()
 
-async def delete_char(char_id: int) -> dict:
+async def delete_char(char_id: str) -> dict:
     """
     Запрос на удаление персонажа по его ID в базе данных.
     
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
 
     Returns:
         dict: Словарь с данными удалённого персонажа.
@@ -83,12 +83,12 @@ async def auto_create_char(auto_char_data: dict) -> dict:
     response = httpx.post(f"{os.getenv("RND_URL")}/create-character-list",json=auto_char_data)
     return response.json()
 
-async def get_item(char_id: int, item_id: str) -> dict:
+async def get_item(char_id: str, item_id: str) -> dict:
     """
     Запрос на получение предмета из инвенторя.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item_id (str): ID предмета в базе данных.
 
     Returns:
@@ -97,12 +97,12 @@ async def get_item(char_id: int, item_id: str) -> dict:
     response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/inventory", params={"item_id": item_id})
     return response.json()
 
-async def add_item(char_id: int, item: dict) -> dict:
+async def add_item(char_id: str, item: dict) -> dict:
     """
     Запрос на добавление предмета в инвентарь.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item (dict): Словарь с данными о предмете.
 
     Returns:
@@ -111,12 +111,12 @@ async def add_item(char_id: int, item: dict) -> dict:
     response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/inventory",json=item)
     return response.json()
 
-async def delete_item(char_id: int, item_id: str) -> dict:
+async def delete_item(char_id: str, item_id: str) -> dict:
     """
     Запрос на удаление предмета из инвенторя.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item_id (str): ID предмета в базе данных.
 
     Returns:
@@ -125,12 +125,12 @@ async def delete_item(char_id: int, item_id: str) -> dict:
     response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/inventory", params={"item_id": item_id})
     return response.json()
 
-async def update_item(char_id: int, item: dict) -> dict:
+async def update_item(char_id: str, item: dict) -> dict:
     """
     Запрос на изменение предмета в инвентаре.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item (dict): Словарь с данными о предмете.
 
     Returns:
@@ -139,12 +139,12 @@ async def update_item(char_id: int, item: dict) -> dict:
     response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/inventory",json=item)
     return response.json()
 
-async def get_ammunition(char_id: int, item_id: str) -> dict:
+async def get_ammunition(char_id: str, item_id: str) -> dict:
     """
     Запрос на получение снаряжения из амуниции.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item_id (str): ID предмета в базе данных.
 
     Returns:
@@ -153,12 +153,12 @@ async def get_ammunition(char_id: int, item_id: str) -> dict:
     response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/ammunition", params={"item_id": item_id})
     return response.json()
 
-async def add_ammunition(char_id: int, item: dict) -> dict:
+async def add_ammunition(char_id: str, item: dict) -> dict:
     """
     Запрос на добавление снаряжения в амуницию.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item (dict): Словарь с данными о предмете.
 
     Returns:
@@ -167,12 +167,12 @@ async def add_ammunition(char_id: int, item: dict) -> dict:
     response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/ammunition",json=item)
     return response.json()
 
-async def delete_ammunition(char_id: int, item_id: str) -> dict:
+async def delete_ammunition(char_id: str, item_id: str) -> dict:
     """
     Запрос на удаление снаряжения из амуниции.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item_id (str): ID предмета в базе данных.
 
     Returns:
@@ -181,12 +181,12 @@ async def delete_ammunition(char_id: int, item_id: str) -> dict:
     response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/ammunition", params={"item_id": item_id})
     return response.json()
 
-async def update_ammunition(char_id: int, item: dict) -> dict:
+async def update_ammunition(char_id: str, item: dict) -> dict:
     """
     Запрос на изменение снаряжения в амуниции.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         item (dict): Словарь с данными о предмете.
 
     Returns:
@@ -195,12 +195,12 @@ async def update_ammunition(char_id: int, item: dict) -> dict:
     response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/ammunition",json=item)
     return response.json()
 
-async def get_note(char_id: int, note_id: str) -> dict:
+async def get_note(char_id: str, note_id: str) -> dict:
     """
     Запрос на получение снаряжения из амуниции.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         note_id (str): ID заметки в базе данных.
 
     Returns:
@@ -209,12 +209,12 @@ async def get_note(char_id: int, note_id: str) -> dict:
     response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes", params={"note_id": note_id})
     return response.json()
 
-async def add_note(char_id: int, note: dict) -> dict:
+async def add_note(char_id: str, note: dict) -> dict:
     """
-    Запрос на заметки к персонажу.
+    Запрос на добавление заметки к персонажу.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         note (dict): Словарь с данными о заметкке.
 
     Returns:
@@ -223,12 +223,12 @@ async def add_note(char_id: int, note: dict) -> dict:
     response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes",json=note)
     return response.json()
 
-async def delete_note(char_id: int, note_id: str) -> dict:
+async def delete_note(char_id: str, note_id: str) -> dict:
     """
     Запрос на удаление заметки к персонажу.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         note_id (str): ID заметки в базе данных.
 
     Returns:
@@ -237,12 +237,12 @@ async def delete_note(char_id: int, note_id: str) -> dict:
     response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes",params={"note_id": note_id})
     return response.json()
 
-async def update_note(char_id: int, note: dict) -> dict:
+async def update_note(char_id: str, note: dict) -> dict:
     """
     Запрос на изменение заметки к персонажу.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         note (dict): Словарь с данными о заметкке.
 
     Returns:
@@ -251,30 +251,114 @@ async def update_note(char_id: int, note: dict) -> dict:
     response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes",json=note)
     return response.json()
 
-async def update_gold(char_id: int, gold: str) -> dict:
+async def update_gold(char_id: str, gold: str) -> dict:
     """
     Запрос на изменение количества золота у персонажа.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
+        char_id (str): ID персонажа в базе данных.
         gold (str): Количество золота, которое надо добавить/убрать.
 
     Returns:
         dict: Обновлённое количество золота.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{char_id}/gold",params={"gold": gold})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/gold",params={"gold": gold})
     return response.json()
 
-async def update_experience(char_id: int, experience: str) -> dict:
+async def update_experience(char_id: str, experience: str) -> dict:
     """
     Запрос на изменение количества опыта у персонажа.
 
     Args:
-        char_id (int): ID персонажа в базе данных.
-        experience (str):Количество опыта, которое надо добавить/убрать.
+        char_id (str): ID персонажа в базе данных.
+        experience (str): Количество опыта, которое надо добавить/убрать.
 
     Returns:
         dict: Обновлённое количество опыта.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{char_id}/experience",params={"experience": experience})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/experience",params={"experience": experience})
+    return response.json()
+
+async def update_name(char_id: str, name: str) -> dict:
+    """
+    Запрос на изменение имени персонажа.
+
+    Args:
+        char_id (str): ID персонажа в базе данных.
+        name (str): Новое имя персонажа.
+
+    Returns:
+        dict: Новое имя персонажа.
+    """
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/name",params={"new_name": name})
+    return response.json()
+
+async def update_surname(char_id: str, surname: str) -> dict:
+    """
+    Запрос на изменение фамилии персонажа.
+
+    Args:
+        char_id (str): ID персонажа в базе данных.
+        surname (str): Новая фамилия персонажа.
+
+    Returns:
+        dict: Новая фамилия персонажа.
+    """
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/surname",params={"new_surname": surname})
+    return response.json()
+
+async def update_age(char_id: str, age: int) -> dict:
+    """
+    Запрос на изменение возраста персонажа.
+
+    Args:
+        char_id (str): ID персонажа в базе данных.
+        age (int): Новый возраст персонажа.
+
+    Returns:
+        dict: Новый возраст персонажа.
+    """
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/age",params={"new_age": age})
+    return response.json()
+
+async def update_backstory(char_id: str, backstory: str) -> dict:
+    """
+    Запрос на изменение предыстории персонажа.
+
+    Args:
+        char_id (str): ID персонажа в базе данных.
+        backstory (str): Новая предыстория персонажа.
+
+    Returns:
+        dict: Новая предыстория персонажа.
+    """
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/backstory",params={"new_backstory": backstory})
+    return response.json()
+
+async def add_language(char_id: str, language: str) -> dict:
+    """
+    Запрос на добавление языка пероснажа.
+
+    Args:
+        char_id (str): ID персонажа в базе данных.
+        language (str): Название языка.
+
+    Returns:
+        dict: Добавленный язык.
+    """
+    response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/languages", params={"language": language})
+    return response.json()
+
+async def delete_language(char_id: str, language: str) -> dict:
+    """
+    Запрос на удаление языка пероснажа.
+
+    Args:
+        char_id (str): ID персонажа в базе данных.
+        language (str): Название языка.
+
+    Returns:
+        dict: Удалённый язык.
+    """
+    response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/languages", params={"language": language})
     return response.json()

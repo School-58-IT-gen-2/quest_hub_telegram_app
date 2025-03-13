@@ -48,7 +48,7 @@ async def view_char(callback_query: types.CallbackQuery, state: FSMContext):
     elif callback_query.data == "dict_kb_back":
         await characters(callback_query, state)
     else:
-        char = await get_char(int(callback_query.data))
+        char = await get_char(callback_query.data)
         char = char[0]
         await callback_query.message.delete()
         await callback_query.message.answer(text=character_card(char)["main_char_info"],parse_mode="MarkdownV2",reply_markup=character_card_keyboard) 
@@ -218,7 +218,7 @@ async def main_char_info_menu(callback_query: types.CallbackQuery, state: FSMCon
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == "name":
-        await callback_query.message.edit_text(text=character_card(char)["name"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=character_card(char)["name"], reply_markup=name_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.name_menu)
     if callback_query.data == "age":
         await callback_query.message.edit_text(text=character_card(char)["age"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
@@ -272,6 +272,25 @@ async def name_menu(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == 'back':
         await callback_query.message.edit_text(text='👤 *_Основные параметры:_*', reply_markup=main_char_info_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.main_char_info_menu)
+    elif callback_query.data == 'change_name':
+        await callback_query.message.edit_text(text=f'*_{callback_query.message.text}_*\n\nВведите новое имя персонажа:',parse_mode="MarkdownV2")
+        await state.set_state(Form.change_char_name)
+    elif callback_query.data == 'change_surname':
+        await callback_query.message.edit_text(text=f'*_{callback_query.message.text}_*\n\nВведите новую фамилию персонажа:',parse_mode="MarkdownV2")
+        await state.set_state(Form.change_char_surname)
+
+@router.message(Form.change_char_name)
+async def change_char_name(message: types.Message, state: FSMContext):
+    """Изменение имени персонажа"""
+    data = await state.get_data()
+    char = data["char"]
+    char_id = char["id"]
+    name = message.text
+    await update_name(char_id, name)
+    char["name"] = name
+    await state.update_data({"char": char})
+    await state.set_state(Form.inventory_item_menu)
+    await message.answer(text=character_card(char)["name"], reply_markup=name_keyboard, parse_mode="MarkdownV2")
 
 @router.callback_query(Form.age_menu)
 async def age_menu(callback_query: types.CallbackQuery, state: FSMContext):
@@ -337,7 +356,7 @@ async def items_menu(callback_query: types.CallbackQuery, state: FSMContext):
         items_arr = [[item["name"], item["id"]] for item in char["inventory"]]
         await callback_query.message.edit_reply_markup(reply_markup=await change_keyboard_page(callback_query.data, items_arr))
     elif callback_query.data == "dict_kb_back":
-        await callback_query.message.edit_text(text='🎒 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     else:
         await state.set_state(Form.inventory_item_menu)
@@ -399,7 +418,7 @@ async def gold_menu(callback_query: types.CallbackQuery, state: FSMContext):
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == 'back':
-        await callback_query.message.edit_text(text='🎒 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     else:
         await callback_query.message.edit_text(text=f'*_Текущее количество золота:_* {char['gold']}\n\nВведите количество золота\, которое вы хотите добавить/убрать\. Например `+10` или `-4`\.',parse_mode="MarkdownV2")
@@ -434,7 +453,7 @@ async def ammunition_menu(callback_query: types.CallbackQuery, state: FSMContext
         ammunition_arr = [[weapon["name"], weapon["id"]] for weapon in char["weapons_and_equipment"]]
         await callback_query.message.edit_reply_markup(reply_markup=await change_keyboard_page(callback_query.data, ammunition_arr))
     elif callback_query.data == "dict_kb_back":
-        await callback_query.message.edit_text(text='🎒 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     else:
         await state.set_state(Form.ammunition_item_menu)
@@ -496,7 +515,7 @@ async def experience_menu(callback_query: types.CallbackQuery, state: FSMContext
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == 'back':
-        await callback_query.message.edit_text(text='🎒 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     else:
         await callback_query.message.edit_text(text=f'*_Текущий опыт:_* {char['experience']}\n\nВведите количество опыта\, которое вы хотите добавить/убрать\. Например `+12` или `-3`\.',parse_mode="MarkdownV2")

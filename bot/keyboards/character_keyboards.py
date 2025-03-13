@@ -74,6 +74,11 @@ note_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Удалить", callback_data="delete_note")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
+name_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить имя", callback_data="change_name")],
+        [InlineKeyboardButton(text="Изменить фамилию", callback_data="change_surname")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")]])
+
 async def build_arr_keyboard(buttons: list, page: int = 0, button_rows: int = 3) -> InlineKeyboardMarkup:
     """
     Создает клавиатуру по словарю с данными.

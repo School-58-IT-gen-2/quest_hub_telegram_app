@@ -171,7 +171,7 @@ def format_ammunition(data: dict) -> dict:
                 value = f'{value} шт.'
             if isinstance(value, list):
                 value = ", ".join(value)
-            if key == "description":
+            if key == "description" and value:
                 description = value
             elif key != "name" and key != "id" and value:
                 card += align_text([translate_key(key), value], 22) + "\n"
@@ -223,7 +223,7 @@ def format_inventory(data: dict) -> dict:
                 value = f'{value} шт.'
             if isinstance(value, list):
                 value = ", ".join(value)
-            if key == "description":
+            if key == "description" and value:
                 description = value
             elif key != "name" and key != "id" and value:
                 card += align_text([translate_key(key), value], 22) + "\n"
