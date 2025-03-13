@@ -44,3 +44,6 @@ class Form(StatesGroup):
     create_note_title = State()
     create_note_text = State()
     delete_note = State()
+    change_backstory = State()
+    add_language = State()
+    delete_language = State()

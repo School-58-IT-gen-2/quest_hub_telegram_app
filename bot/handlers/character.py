@@ -218,7 +218,7 @@ async def main_char_info_menu(callback_query: types.CallbackQuery, state: FSMCon
     char = await state.get_data()
     char = char["char"]
     if callback_query.data == "name":
-        await callback_query.message.edit_text(text=character_card(char)["name"], reply_markup=name_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=(await character_card(char))["name"], reply_markup=name_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.name_menu)
     if callback_query.data == "age":
         await callback_query.message.edit_text(text=(await character_card(char))["age"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
@@ -227,7 +227,7 @@ async def main_char_info_menu(callback_query: types.CallbackQuery, state: FSMCon
         await callback_query.message.edit_text(text=(await character_card(char))["backstory"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.backstory_menu)
     if callback_query.data == "languages":
-        await callback_query.message.edit_text(text=(await character_card(char))["languages"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=(await character_card(char))["languages"], reply_markup=language_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.languages_menu)
     if callback_query.data == "back":
         await callback_query.message.edit_text(text=(await character_card(char))["main_char_info"],parse_mode="MarkdownV2",reply_markup=character_card_keyboard) 
@@ -273,10 +273,10 @@ async def name_menu(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_text(text='👤 *_Основные параметры:_*', reply_markup=main_char_info_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.main_char_info_menu)
     elif callback_query.data == 'change_name':
-        await callback_query.message.edit_text(text=f'*_{callback_query.message.text}_*\n\nВведите новое имя персонажа:',parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f'{(await character_card(char))["name"]}\n\nВведите новое имя персонажа:',parse_mode="MarkdownV2")
         await state.set_state(Form.change_char_name)
     elif callback_query.data == 'change_surname':
-        await callback_query.message.edit_text(text=f'*_{callback_query.message.text}_*\n\nВведите новую фамилию персонажа:',parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f'{(await character_card(char))["name"]}\n\nВведите новую фамилию персонажа:',parse_mode="MarkdownV2")
         await state.set_state(Form.change_char_surname)
 
 @router.message(Form.change_char_name)
@@ -289,8 +289,21 @@ async def change_char_name(message: types.Message, state: FSMContext):
     await update_name(char_id, name)
     char["name"] = name
     await state.update_data({"char": char})
-    await state.set_state(Form.inventory_item_menu)
-    await message.answer(text=character_card(char)["name"], reply_markup=name_keyboard, parse_mode="MarkdownV2")
+    await state.set_state(Form.name_menu)
+    await message.answer(text=(await character_card(char))["name"], reply_markup=name_keyboard, parse_mode="MarkdownV2")
+
+@router.message(Form.change_char_surname)
+async def change_char_surname(message: types.Message, state: FSMContext):
+    """Изменение фамилии персонажа"""
+    data = await state.get_data()
+    char = data["char"]
+    char_id = char["id"]
+    surname = message.text
+    await update_surname(char_id, surname)
+    char["surname"] = surname
+    await state.update_data({"char": char})
+    await state.set_state(Form.name_menu)
+    await message.answer(text=(await character_card(char))["name"], reply_markup=name_keyboard, parse_mode="MarkdownV2")
 
 @router.callback_query(Form.age_menu)
 async def age_menu(callback_query: types.CallbackQuery, state: FSMContext):
@@ -301,6 +314,29 @@ async def age_menu(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data == 'back':
         await callback_query.message.edit_text(text='👤 *_Основные параметры:_*', reply_markup=main_char_info_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.main_char_info_menu)
+    elif callback_query.data == 'edit':
+        await callback_query.message.edit_text(text=f'{(await character_card(char))["age"]}\n\nВведите новый возраст персонажа:',parse_mode="MarkdownV2")
+        await state.set_state(Form.change_char_age)
+
+@router.message(Form.change_char_age)
+async def change_char_age(message: types.Message, state: FSMContext):
+    """Изменение возраста персонажа"""
+    data = await state.get_data()
+    char = data["char"]
+    char_id = char["id"]
+    age = message.text
+    if age.isdigit():
+        if int(age) == 0:
+            await message.answer(text="Ждём вашего персонажа через 9 месяцев\!\n\nПожалуйста введите корректный возраст\.",parse_mode="MarkdownV2")
+        else:
+            age = int(age)
+            await update_age(char_id, age)
+            char["age"] = age
+            await state.update_data({"char": char})
+            await state.set_state(Form.age_menu)
+            await message.answer(text=(await character_card(char))["age"], reply_markup=edit_keyboard, parse_mode="MarkdownV2")
+    else:
+        await message.answer(text=f"{await tg_text_convert("Тестировщик заходит в бар и заказывает: кружку пива, 2 кружки пива, 0 кружек пива, 999999999 кружек пива, ящерицу в стакане, –1 кружку пива, qwertyuip кружек пива.\n\nПервый реальный клиент заходит в бар и спрашивает, где туалет. Бар вспыхивает пламенем, все погибают.")}\n\nПожалуйста введите корректный возраст\.",parse_mode="MarkdownV2")
 
 @router.callback_query(Form.backstory_menu)
 async def backstory_menu(callback_query: types.CallbackQuery, state: FSMContext):
@@ -311,6 +347,22 @@ async def backstory_menu(callback_query: types.CallbackQuery, state: FSMContext)
     if callback_query.data == 'back':
         await callback_query.message.edit_text(text='👤 *_Основные параметры:_*', reply_markup=main_char_info_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.main_char_info_menu)
+    elif callback_query.data == 'edit':
+        await callback_query.message.edit_text(text=f'{(await character_card(char))["backstory"]}\n\n\nВведите новую предысторию персонажа:',parse_mode="MarkdownV2")
+        await state.set_state(Form.change_backstory)
+    
+@router.message(Form.change_backstory)
+async def change_backstory(message: types.Message, state: FSMContext):
+    """Изменение предыстории персонажа"""
+    data = await state.get_data()
+    char = data["char"]
+    char_id = char["id"]
+    backstory = message.text
+    await update_backstory(char_id, backstory)
+    char["backstory"] = backstory
+    await state.update_data({"char": char})
+    await state.set_state(Form.backstory_menu)
+    await message.answer(text=(await character_card(char))["backstory"], reply_markup=edit_keyboard, parse_mode="MarkdownV2")
 
 @router.callback_query(Form.languages_menu)
 async def languages_menu(callback_query: types.CallbackQuery, state: FSMContext):
@@ -321,6 +373,12 @@ async def languages_menu(callback_query: types.CallbackQuery, state: FSMContext)
     if callback_query.data == 'back':
         await callback_query.message.edit_text(text='👤 *_Основные параметры:_*', reply_markup=main_char_info_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.main_char_info_menu)
+    elif callback_query.data == 'add_language':
+        await callback_query.message.edit_text(text=f'{(await character_card(char))["languages"]}\n\nВведите новый язык:',parse_mode="MarkdownV2")
+        await state.set_state(Form.add_language)
+    elif callback_query.data == 'delete_language':
+        await callback_query.message.edit_text(text=f'{(await character_card(char))["languages"]}\n\nВведите номер языка\, который хотите удалить:',parse_mode="MarkdownV2")
+        await state.set_state(Form.delete_language)
 
 @router.callback_query(Form.inventory_menu)
 async def inventory(callback_query: types.CallbackQuery, state: FSMContext):

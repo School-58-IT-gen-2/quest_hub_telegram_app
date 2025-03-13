@@ -244,7 +244,6 @@ async def format_spells(data: dict) -> str:
     """
     card = "```Заклинания"
     spells = data["spells"]
-    spells_dict = dict()
     description = ""
     if spells:
         for name, details in spells.items():
@@ -298,7 +297,7 @@ async def character_card(data: dict) -> dict:
         age = f'*_{age} года_*'
 
     card = (
-        f'*_\U00002E3A {data.get('name', 'Безымянный')} {data.get('surname', '')} \U00002E3A_*\n\n'
+        f'*_\U00002E3A {await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))} \U00002E3A_*\n\n'
         "👤 *_Основные параметры:_*\n"
         "```Параметры\n"
         f"{await align_text(['Возраст', age[2:-2]], 22)}\n"
@@ -334,9 +333,9 @@ async def character_card(data: dict) -> dict:
         card += "\n\n🛠️ *_Навыки:_*\n"
         card += "\n".join(f">\U00002022 {skill}" for skill in skills)
 
-    name = f'*_{data.get('name', 'Безымянный')} {data.get('surname', '')}_*'
+    name = f'*_{await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))}_*'
 
-    backstory = f"📜 *_Предыстория:_*\n>{await tg_text_convert(data.get('backstory', 'Нет данных'))}"
+    backstory = f"📜 *_Предыстория:_*\n\n>" + "\n>".join((await tg_text_convert(data.get('backstory', 'Нет данных'))).split('\n'))
 
     traits_arr = []
     for trait, desc in data['traits_and_abilities'].items():
@@ -352,8 +351,10 @@ async def character_card(data: dict) -> dict:
     notes = await format_notes(data)
 
     languages_arr = []
+    i = 1
     for language in data['languages']:
-        languages_arr.append(f">\U00002022 {await tg_text_convert(language)}")
-    languages = "🗣️ *_Языки:_*\n" + "\n".join(languages_arr)
+        languages_arr.append(f">{i}. {await tg_text_convert(language)}")
+        i += 1
+    languages = "🗣️ *_Языки:_*\n\n" + "\n".join(languages_arr)
         
     return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "notes": notes, "languages": languages}
