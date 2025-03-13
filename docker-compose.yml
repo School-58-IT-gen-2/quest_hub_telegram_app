@@ -2,7 +2,7 @@ version: '3'
 
 services:
   quest_hub_telegram_app:
-    image: quest_hub_telegram_app:0.0.2
+    image: quest_hub_telegram_app:main
     container_name: quest_hub_telegram_app
     env_file: .env
     command: 'python run_bot.py'

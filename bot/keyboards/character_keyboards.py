@@ -137,7 +137,7 @@ async def build_notes_keyboard(buttons: list, page: int = 0, button_rows: int = 
     Returns:
         InlineKeyboardMarkup: Итоговая клавиатура.
     """
-    inline_kb = [[InlineKeyboardButton(text="Новая заметка", callback_data="create_note")]]
+    inline_kb = [[InlineKeyboardButton(text="Создать заметку", callback_data="create_note")]]
     length = len(buttons)
     if buttons:
         buttons = buttons[page * button_rows * 2:]

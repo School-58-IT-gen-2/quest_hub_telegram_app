@@ -88,3 +88,4 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
         await asyncio.sleep(1.0)
         await callback_query.message.delete()
         await main_menu(callback_query.message,text="Вы отменили удаление аккаунта")
+
