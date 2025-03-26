@@ -350,11 +350,6 @@ async def character_card(data: dict) -> dict:
 
     notes = await format_notes(data)
 
-    languages_arr = []
-    i = 1
-    for language in data['languages']:
-        languages_arr.append(f">{i}. {await tg_text_convert(language)}")
-        i += 1
-    languages = "🗣️ *_Языки:_*\n\n" + "\n".join(languages_arr)
+    languages = [[i, i] for i in data['languages']]
         
     return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "notes": notes, "languages": languages}

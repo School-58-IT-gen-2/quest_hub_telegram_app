@@ -47,3 +47,5 @@ class Form(StatesGroup):
     change_backstory = State()
     add_language = State()
     delete_language = State()
+    language_menu = State()
+    

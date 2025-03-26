@@ -262,7 +262,7 @@ async def update_gold(char_id: str, gold: str) -> dict:
     Returns:
         dict: Обновлённое количество золота.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/gold",params={"gold": gold})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/gold",json={"gold": gold})
     return response.json()
 
 async def update_experience(char_id: str, experience: str) -> dict:
@@ -276,7 +276,7 @@ async def update_experience(char_id: str, experience: str) -> dict:
     Returns:
         dict: Обновлённое количество опыта.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/experience",params={"experience": experience})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/experience",json={"experience": experience})
     return response.json()
 
 async def update_name(char_id: str, name: str) -> dict:
@@ -290,7 +290,7 @@ async def update_name(char_id: str, name: str) -> dict:
     Returns:
         dict: Новое имя персонажа.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/name",params={"new_name": name})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/name",json={"new_name": name})
     return response.json()
 
 async def update_surname(char_id: str, surname: str) -> dict:
@@ -304,7 +304,7 @@ async def update_surname(char_id: str, surname: str) -> dict:
     Returns:
         dict: Новая фамилия персонажа.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/surname",params={"new_surname": surname})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/surname",json={"new_surname": surname})
     return response.json()
 
 async def update_age(char_id: str, age: int) -> dict:
@@ -318,7 +318,7 @@ async def update_age(char_id: str, age: int) -> dict:
     Returns:
         dict: Новый возраст персонажа.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/age",params={"new_age": age})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/age",json={"new_age": age})
     return response.json()
 
 async def update_backstory(char_id: str, backstory: str) -> dict:
@@ -332,7 +332,7 @@ async def update_backstory(char_id: str, backstory: str) -> dict:
     Returns:
         dict: Новая предыстория персонажа.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/backstory",params={"new_backstory": backstory})
+    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/backstory",json={"new_backstory": backstory})
     return response.json()
 
 async def add_language(char_id: str, language: str) -> dict:
@@ -346,7 +346,7 @@ async def add_language(char_id: str, language: str) -> dict:
     Returns:
         dict: Добавленный язык.
     """
-    response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/languages", params={"language": language})
+    response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/languages", json={"language": language})
     return response.json()
 
 async def delete_language(char_id: str, language: str) -> dict:
