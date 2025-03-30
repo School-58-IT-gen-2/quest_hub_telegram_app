@@ -74,6 +74,12 @@ note_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Удалить", callback_data="delete_note")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
+trait_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить название", callback_data="change_name")],
+        [InlineKeyboardButton(text="Изменить описание", callback_data="change_description")],
+        [InlineKeyboardButton(text="Удалить", callback_data="delete_trait")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")]])
+
 name_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить имя", callback_data="change_name")],
         [InlineKeyboardButton(text="Изменить фамилию", callback_data="change_surname")],

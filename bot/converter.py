@@ -277,6 +277,23 @@ async def format_notes(data: dict) -> dict:
             notes_dict[note["id"]] = f'*_{await tg_text_convert(note["title"])}_*\n\n{await tg_text_convert(note["text"])}'
     return notes_dict
 
+async def format_traits(data: dict) -> dict:
+    """
+    Форматирует вывод черт и способностей.
+    
+    Args:
+        data (dict): Словарь с данными персонажа.
+    
+    Returns:
+        dict: Словарь с отформатированными чертами и способностями.
+    """
+    traits = data["traits_and_abilities"]
+    traits_dict = dict()
+    if traits:
+        for trait in traits:
+            traits_dict[trait["id"]] = f'*_{await tg_text_convert(trait["name"])}_*\n\n{await tg_text_convert(trait["description"])}'
+    return traits_dict
+
 async def character_card(data: dict) -> dict:
     """
     Создает лист персонажа по словарю с данными.
@@ -337,11 +354,6 @@ async def character_card(data: dict) -> dict:
 
     backstory = f"📜 *_Предыстория:_*\n\n>" + "\n>".join((await tg_text_convert(data.get('backstory', 'Нет данных'))).split('\n'))
 
-    traits_arr = []
-    for trait, desc in data['traits_and_abilities'].items():
-        traits_arr.append(f">\U00002022 *{trait}* – {(await tg_text_convert(desc)).lower()}")
-    traits_and_abilities = "🧬 *_Черты и способности:_*\n" + "\n".join(traits_arr)
-
     ammunition = await format_ammunition(data)
 
     spells = await format_spells(data)
@@ -349,6 +361,8 @@ async def character_card(data: dict) -> dict:
     inventory = await format_inventory(data)
 
     notes = await format_notes(data)
+
+    traits_and_abilities = await format_traits(data)
 
     languages = [[i, i] for i in data['languages']]
         
