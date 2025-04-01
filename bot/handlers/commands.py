@@ -7,7 +7,6 @@ from keyboards.common_keyboards import *
 from server_requests.profile_requests import *
 
 
-dp = Dispatcher()
 router = Router()
 
 @router.message(Command("start"))

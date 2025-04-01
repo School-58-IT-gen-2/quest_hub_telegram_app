@@ -1,5 +1,3 @@
-import asyncio
-
 from aiogram import Dispatcher, types, Router
 from aiogram.types import InputMediaPhoto, FSInputFile
 from aiogram.fsm.context import FSMContext
@@ -82,10 +80,8 @@ async def confirm_delete_profile(callback_query: types.CallbackQuery, state: FSM
                 await delete_char(char['id'])
         await delete_user(tg_id = callback_query.from_user.id)
         await callback_query.message.edit_caption(caption="Ваш аккаунт был успешно удален")
-        await asyncio.sleep(1.0)
         await callback_query.message.answer(text="Ваши данные успешно удалены. Для того чтобы продолжить пользоваться ботом нажмите /start")
     elif callback_query.data == 'no':
-        await asyncio.sleep(1.0)
         await callback_query.message.delete()
         await main_menu(callback_query.message,text="Вы отменили удаление аккаунта")
 
