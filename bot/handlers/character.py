@@ -252,7 +252,7 @@ async def create_trait_description(message: types.Message, state: FSMContext):
     char_id = char["id"]
     trait_name = data["trait_name"]
     trait = {"name": trait_name, "description": description}
-    trait = await add_ability(char_id, trait)
+    trait = await add_trait(char_id, trait)
     char = await get_char(char_id)
     char = char[0]
     await state.update_data({"char": char})
@@ -292,7 +292,7 @@ async def discard_trait(callback_query: types.CallbackQuery, state: FSMContext):
     char_id = char["id"]
     item_id = data["item_id"]
     if callback_query.data == 'yes':
-        await delete_ability(char_id, item_id)
+        await delete_trait(char_id, item_id)
         char = await get_char(char_id)
         char = char[0]
         await state.update_data({"char": char})
@@ -311,12 +311,9 @@ async def change_trait_name(message: types.Message, state: FSMContext):
     data = await state.get_data()
     item_id = data["item_id"]
     char_id = data["char"]["id"]
-    item = await get_ability(char_id, item_id)
-    print('====================================')
-    print(item)
-    print('====================================')
+    item = await get_trait(char_id, item_id)
     item["name"] = message.text
-    item = await update_ability(char_id, item)
+    item = await update_trait(char_id, item)
     char = await get_char(char_id)
     char = char[0]
     await state.update_data({"char": char})
@@ -329,14 +326,14 @@ async def change_trait_description(message: types.Message, state: FSMContext):
     data = await state.get_data()
     item_id = data["item_id"]
     char_id = data["char"]["id"]
-    item = await get_ability(char_id, item_id)
+    item = await get_trait(char_id, item_id)
     item["description"] = message.text
-    item = await update_ability(char_id, item)
+    item = await update_trait(char_id, item)
     char = await get_char(char_id)
     char = char[0]
     await state.update_data({"char": char})
     await state.set_state(Form.trait_menu)
-    await message.answer(text=(await character_card(char))["traits_and_abilities"][item_id], reply_markup=trait_menu, parse_mode="MarkdownV2")
+    await message.answer(text=(await character_card(char))["traits_and_abilities"][item_id], reply_markup=trait_keyboard, parse_mode="MarkdownV2")
 
 @router.callback_query(Form.main_char_info_menu)
 async def main_char_info_menu(callback_query: types.CallbackQuery, state: FSMContext):
