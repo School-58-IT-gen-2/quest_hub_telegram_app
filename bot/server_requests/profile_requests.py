@@ -2,7 +2,6 @@ import httpx
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 async def get_user(tg_id: int) -> dict:

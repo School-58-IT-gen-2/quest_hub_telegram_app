@@ -14,9 +14,7 @@ from dotenv import load_dotenv
 from keyboards.session_keyboards import *
 from keyboards.common_keyboards import *
 from server_requests.session_requests import *
-from handlers.commands import main_menu
 from forms import Form
-from converter import character_card
 
 
 dp = Dispatcher()

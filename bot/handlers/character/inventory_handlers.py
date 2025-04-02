@@ -3,7 +3,8 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards.character_keyboards import *
 from keyboards.common_keyboards import *
-from server_requests.character_requests import *
+from server_requests.character_requests.character_requests import *
+from server_requests.character_requests.inventory_requests import *
 from forms import Form
 from converter import *
 

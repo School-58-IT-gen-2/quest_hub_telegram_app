@@ -4,9 +4,9 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards.profile_keyboards import *
 from keyboards.common_keyboards import *
+from handlers.commands_handlers import main_menu
+from server_requests.character_requests.character_requests import *
 from server_requests.profile_requests import *
-from handlers.commands import main_menu
-from server_requests.character_requests import *
 from forms import Form
 
 

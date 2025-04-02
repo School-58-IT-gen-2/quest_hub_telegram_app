@@ -2,14 +2,11 @@ import asyncio
 import logging
 import os
 
-from aiogram import Bot, Dispatcher, Router
+from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-from keyboards import *
-from server_requests import *
-from handlers.character import char_tab, create_char, inventory, main_info, notes, spells, traits
-from handlers import commands, profile, session
-
+from handlers.character import char_menus_handlers, create_char_handlers, inventory_handlers, main_info_handlers, notes_handlers, spells_handlers, traits_handlers
+from handlers import commands_handlers, profile_handlers, session_handlers
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +14,18 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
-routers = [char_tab.router, create_char.router, inventory.router, main_info.router, notes.router, spells.router, traits.router, commands.router, profile.router, session.router]
+routers = [
+    char_menus_handlers.router,
+    create_char_handlers.router,
+    inventory_handlers.router,
+    main_info_handlers.router,
+    notes_handlers.router,
+    spells_handlers.router,
+    traits_handlers.router,
+    commands_handlers.router,
+    profile_handlers.router,
+    session_handlers.router
+]
 
 async def main():
     for router in routers:
