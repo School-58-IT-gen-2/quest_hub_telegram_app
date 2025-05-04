@@ -125,7 +125,7 @@ async def change_gold(message: types.Message, state: FSMContext):
             await message.answer(text=f'*_Текущее количество золота:_* {char["gold"]}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
             await state.set_state(Form.gold_menu)
     else:
-        await message.answer(text="Пожалуйста используйте корректный формат ввода.")
+        await message.answer(text="Пожалуйста, используйте корректный формат ввода.")
 
 @router.callback_query(Form.ammunition_menu)
 async def ammunition_menu(callback_query: types.CallbackQuery, state: FSMContext):
@@ -218,4 +218,4 @@ async def change_xp(message: types.Message, state: FSMContext):
             await message.answer(text=f'*_Текущий опыт:_* {char["experience"]}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
             await state.set_state(Form.experience_menu)
     else:
-        await message.answer(text="Пожалуйста используйте корректный формат ввода.")
+        await message.answer(text="Пожалуйста, используйте корректный формат ввода.")

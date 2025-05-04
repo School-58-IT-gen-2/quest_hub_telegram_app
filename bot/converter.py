@@ -83,7 +83,29 @@ async def tg_text_convert(text: str) -> str:
         text = text.replace(i, '\\' + i)
     return text
 
-async def align_text(text: list, offset: int, max_column_length: int = 18) -> str:
+async def word_formation(count: int, form_1: str, form_2: str, form_3: str) -> str:
+    """
+    Склоняет слово в зависимости от количества предметов.
+    
+    Args:
+        count (int): Количество предметов.
+        form_1 (str): Склонение слова, если предмет 1.
+        form_2 (str): Склонение слова, если предметов от 2 до 4 (или 0).
+        form_2 (str): Склонение слова в остальных случаях.
+
+    Returns:
+        str: Строка с нужным склонением слова..
+    """
+    last_digit = count % 10
+    if last_digit == 0 or last_digit >= 5 or (count % 100) in range(11, 19):
+        result = f'{count} {form_3}'
+    elif last_digit == 1:
+        result = f'{count} {form_1}'
+    else:
+        result = f'{count} {form_2}'
+    return result
+
+async def align_text(text: list, offset: int = 22, max_column_length: int = 18) -> str:
     """
     Выравнивает текст в 2 столбца.
 
@@ -149,23 +171,9 @@ async def format_ammunition(data: dict) -> dict:
             elif key == "stealth_disadvantage":
                 value = "Да" if value else "Нет"
             elif key == 'weight' and value:
-                value = int(value)
-                last_digit = value % 10
-                if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
-                    value = f'{value} фунтов'
-                elif last_digit == 1:
-                    value = f'{value} фунт'
-                else:
-                    value = f'{value} фунта'
+                value = await word_formation(int(value), 'фунт', 'фунта', 'фунтов')
             elif key == 'cost' and value:
-                value = int(value)
-                last_digit = value % 10
-                if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
-                    value = f'{value} золотых'
-                elif last_digit == 1:
-                    value = f'{value} золотой'
-                else:
-                    value = f'{value} золотых'
+                value = await word_formation(int(value), 'золотой', 'золотых', 'золотых')
             elif key == 'count' and value:
                 value = int(value)
                 value = f'{value} шт.'
@@ -201,23 +209,9 @@ async def format_inventory(data: dict) -> dict:
             elif key == "stealth_disadvantage":
                 value = "Да" if value else "Нет"
             elif key == 'weight' and value:
-                value = int(value)
-                last_digit = value % 10
-                if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
-                    value = f'{value} фунтов'
-                elif last_digit == 1:
-                    value = f'{value} фунт'
-                else:
-                    value = f'{value} фунта'
+                value = await word_formation(int(value), 'фунт', 'фунта', 'фунтов')
             elif key == 'cost' and value:
-                value = int(value)
-                last_digit = value % 10
-                if last_digit == 0 or last_digit >= 5 or (value % 100) in range(11, 19):
-                    value = f'{value} золотых'
-                elif last_digit == 1:
-                    value = f'{value} золотой'
-                else:
-                    value = f'{value} золотых'
+                value = await word_formation(int(value), 'золотой', 'золотых', 'золотых')
             elif key == 'count' and value:
                 value = int(value)
                 value = f'{value} шт.'
@@ -294,6 +288,21 @@ async def format_traits(data: dict) -> dict:
             traits_dict[trait["id"]] = f'*_{await tg_text_convert(trait["name"])}_*\n\n{await tg_text_convert(trait["description"])}'
     return traits_dict
 
+async def game_card(game_params: dict) -> str:
+    text = f"```Партия\n{game_params["name"]}\n"
+    text += await align_text(['Формат', game_params["format"]]) + '\n'
+    text += await align_text(['Тип', game_params["type"]]) + '\n'
+    if game_params["format"] == "Оффлайн":
+        text += await align_text(['Город', game_params["city"].capitalize()]) + '\n'
+    if game_params["level"]:
+        text += await align_text(['Уровень', game_params["level"]]) + '\n'
+    player_count = await word_formation(int(game_params["player_count"]), 'игрок', 'игрока', 'игроков')
+    text += await align_text(['Количество игроков', player_count]) + '\n'
+    if game_params["description"]:
+        text += game_params["description"]
+    text += '```'
+    return text
+
 async def character_card(data: dict) -> dict:
     """
     Создает лист персонажа по словарю с данными.
@@ -304,15 +313,8 @@ async def character_card(data: dict) -> dict:
     Returns:
         dict: Словарь с отформатированными параметрами персонажа.
     """
-    age = data.get('age', 'Не указан')
-    last_digit = age % 10
-    if last_digit == 0 or last_digit >= 5 or (age % 100) in range(11, 19):
-        age = f'*_{age} лет_*'
-    elif last_digit == 1:
-        age = f'*_{age} год_*'
-    else:
-        age = f'*_{age} года_*'
-
+    age = '*_' + (await word_formation(data.get('age', 'Не указан'), 'год', 'года', 'лет')) + '_*'
+    
     card = (
         f'*_\U00002E3A {await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))} \U00002E3A_*\n\n'
         "👤 *_Основные параметры:_*\n"

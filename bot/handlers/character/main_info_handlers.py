@@ -97,7 +97,7 @@ async def change_char_age(message: types.Message, state: FSMContext):
     age = message.text
     if age.isdigit():
         if int(age) == 0:
-            await message.answer(text="Ждём вашего персонажа через 9 месяцев\!\n\nПожалуйста введите корректный возраст\.",parse_mode="MarkdownV2")
+            await message.answer(text="Ждём вашего персонажа через 9 месяцев\!\n\nПожалуйста, введите корректный возраст\.",parse_mode="MarkdownV2")
         else:
             age = int(age)
             await update_age(char["id"], age)
@@ -106,7 +106,7 @@ async def change_char_age(message: types.Message, state: FSMContext):
             await state.set_state(Form.age_menu)
             await message.answer(text=(await character_card(char))["age"], reply_markup=edit_keyboard, parse_mode="MarkdownV2")
     else:
-        await message.answer(text=f"{await tg_text_convert("Тестировщик заходит в бар и заказывает: кружку пива, 2 кружки пива, 0 кружек пива, 999999999 кружек пива, ящерицу в стакане, –1 кружку пива, qwertyuip кружек пива.\n\nПервый реальный клиент заходит в бар и спрашивает, где туалет. Бар вспыхивает пламенем, все погибают.")}\n\nПожалуйста введите корректный возраст\.",parse_mode="MarkdownV2")
+        await message.answer(text=f"{await tg_text_convert("Тестировщик заходит в бар и заказывает: кружку пива, 2 кружки пива, 0 кружек пива, 999999999 кружек пива, ящерицу в стакане, –1 кружку пива, qwertyuip кружек пива.\n\nПервый реальный клиент заходит в бар и спрашивает, где туалет. Бар вспыхивает пламенем, все погибают.")}\n\nПожалуйста, введите корректный возраст\.",parse_mode="MarkdownV2")
 
 @router.callback_query(Form.languages_menu)
 async def languages_menu(callback_query: types.CallbackQuery, state: FSMContext):

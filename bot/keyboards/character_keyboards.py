@@ -25,21 +25,6 @@ gender_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="char_back")]
     ])
 
-change_or_delete_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Изменить персонажа", callback_data="put_character")],
-        [InlineKeyboardButton(text="Удалить персонажа", callback_data="delete_character")],
-        [InlineKeyboardButton(text="Перегенерировать персонажа", callback_data="regenerate_character_from_put")],
-        [InlineKeyboardButton(text="Назад", callback_data="view_characters")],
-    ])
-
-change_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Имя", callback_data="char_name"),InlineKeyboardButton(text="Возраст", callback_data="char_age"),InlineKeyboardButton(text="Фамилия",callback_data="char_surname")],
-        [InlineKeyboardButton(text="Назад", callback_data="back_to_char_from_generation")]])
-
-put_change_character = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Имя", callback_data="put_char_name"),InlineKeyboardButton(text="Возраст", callback_data="put_char_age"),InlineKeyboardButton(text="Фамилия",callback_data="put_char_surname")],
-        [InlineKeyboardButton(text="Назад", callback_data="back_to_char_from_put")]])
-
 character_card_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Инвентарь", callback_data="inventory"), InlineKeyboardButton(text="О персонаже", callback_data="main_char_info")],
         [InlineKeyboardButton(text="Заметки", callback_data="notes"), InlineKeyboardButton(text="Заклинания", callback_data="spells")],
@@ -54,9 +39,6 @@ inventory_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 
 edit_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить", callback_data="edit")],
-        [InlineKeyboardButton(text="Назад", callback_data="back")]])
-
-back_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
 
 main_char_info_keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -118,7 +100,7 @@ async def build_arr_keyboard(buttons: list, page: int = 0, button_rows: int = 3)
         inline_kb.append([InlineKeyboardButton(text="Назад", callback_data="dict_kb_back")])
     return inline_kb
 
-async def change_keyboard_page(callback_data: str, buttons: list, button_rows: int = 3) -> InlineKeyboardMarkup:
+async def change_keyboard_page(callback_data: str, buttons: list, button_rows: int = 3) -> list:
     """
     Обновляет клавиатуру, созданную по словарю, меняя страницу.
 

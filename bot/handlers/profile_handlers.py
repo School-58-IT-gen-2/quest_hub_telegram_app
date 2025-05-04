@@ -40,7 +40,7 @@ async def set_user_age(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         age = int(message.text)
         if age > 122:
-            await message.answer(text="Жанна Кальман была самым старым задокументированным человеком в истории (122 года и 164 дня). Вряд ли нашим ботом пользуется кто-то старше неё. Пожалуйста попробуйте ещё раз.")
+            await message.answer(text="Жанна Кальман была самым старым задокументированным человеком в истории (122 года и 164 дня). Вряд ли нашим ботом пользуется кто-то старше неё. Пожалуйста, попробуйте ещё раз.")
         else:
             await message.answer_photo(photo=FSInputFile("assets/main_menu.png"), reply_markup=main_menu_keyboard, caption=f"Ваш возраст изменен на {message.text}")
             user_data = {
@@ -57,7 +57,7 @@ async def set_user_age(message: types.Message, state: FSMContext):
             await update_user(user_data) 
             await state.clear()
     else:
-        await message.answer(text=f"Мне кажется {message.text} – это не ваш настоящий возраст... Пожалуйста попробуйте ещё раз.")
+        await message.answer(text=f"Мне кажется {message.text} – это не ваш настоящий возраст... Пожалуйста, попробуйте ещё раз.")
 
 @router.callback_query(lambda c: c.data == 'delete_profile')
 async def delete_profile(callback_query: types.CallbackQuery, state: FSMContext):

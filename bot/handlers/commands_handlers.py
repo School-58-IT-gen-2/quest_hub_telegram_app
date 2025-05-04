@@ -1,4 +1,4 @@
-from aiogram import Dispatcher, types, Router
+from aiogram import Dispatcher, types, Router, F
 from aiogram.filters.command import Command
 from aiogram.types import FSInputFile, InputMediaPhoto
 from aiogram.fsm.context import FSMContext
@@ -31,7 +31,7 @@ async def start(message: types.Message, state: FSMContext):
 @router.message(Command("help"))
 async def help(message: types.Message):
     """Вывод помощи"""
-    await message.answer("Тут помощь (возможно)!")
+    await message.answer(text="Заглушка для команды help.")
 
 @router.callback_query(lambda c: c.data == 'main_menu')
 async def main_menu_query(callback_query: types.CallbackQuery, state: FSMContext):

@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
 from handlers.character import char_menus_handlers, create_char_handlers, inventory_handlers, main_info_handlers, notes_handlers, spells_handlers, traits_handlers
-from handlers import commands_handlers, profile_handlers, session_handlers
+from handlers import commands_handlers, profile_handlers, game_handlers
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +24,7 @@ routers = [
     traits_handlers.router,
     commands_handlers.router,
     profile_handlers.router,
-    session_handlers.router
+    game_handlers.router
 ]
 
 async def main():
