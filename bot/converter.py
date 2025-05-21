@@ -242,7 +242,6 @@ async def format_spells(data: dict) -> str:
     if spells:
         for name, details in spells.items():
             card += f"\n{name}\n"
-            spell_name = name
             for key, value in details.items():
                 if key == 'description':
                     description = value
@@ -369,3 +368,32 @@ async def character_card(data: dict) -> dict:
     languages = [[i, i] for i in data['languages']]
         
     return {"name": name, "age": age, "main_char_info": card, "backstory": backstory, "traits_and_abilities": traits_and_abilities, "ammunition": ammunition, "spells": spells, "inventory": inventory, "notes": notes, "languages": languages}
+
+async  def game_character_card(data: dict) -> str:
+    """
+    Создает лист персонажа по словарю с данными.
+    
+    Args:
+        data (dict): Словарь с данными персонажа.
+    
+    Returns:
+        str: Отформатированный текст с листом персонажа.
+    """
+    char_dict = await character_card(data)
+    traits = data["traits_and_abilities"]
+    traits_and_abilities = 'Нет данных'
+    if traits:
+        traits_and_abilities = '\n>'.join([f'\U00002022 *_{await tg_text_convert(trait["name"])}_* – {await tg_text_convert(trait["description"])}' for trait in traits])
+    languages_data = data["languages"]
+    languages = 'Нет данных'
+    if languages_data:
+        languages = '\n>\U00002022 '.join(languages_data)
+    char_list = char_dict["main_char_info"]
+    char_list += '\n\n\n🧬 *_Черты и способности:_*\n>' + traits_and_abilities
+    char_list += '\n\n\n🗣️ *_Языки:_*\n>\U00002022 ' + languages
+    char_list += '\n\n\n🪄 *_Заклинания:_*\n'
+    if data['spells']:
+        char_list += char_dict['spells']
+    else:
+        char_list += '>У персонажа нет заклинаний\.'
+    return char_list

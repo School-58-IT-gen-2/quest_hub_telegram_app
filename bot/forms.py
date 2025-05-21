@@ -78,3 +78,8 @@ class Form(StatesGroup):
     game_params_menu = State()
     game_filters_menu = State()
     game_seed_menu = State()
+    join_game_menu = State()
+    create_char_game_menu = State()
+    choose_char_menu = State()
+    game_send_char_menu = State()
+    choose_game_menu = State()

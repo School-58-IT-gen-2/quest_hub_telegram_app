@@ -17,12 +17,12 @@ async def get_game(game_id: str) -> dict:
     response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game",params={"game_id": game_id})
     return response.json()
 
-async def get_game_filters(filters: dict) -> dict:
+async def get_game_filters(filters: dict) -> list:
     """
     Запрос на получение всех партии, учитывая фильтры.
     
     Returns:
-        dict: Словарь с данными партии.
+        list: Список с найденными партиями.
     """
     response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game_with_params", params=filters)
     return response.json()

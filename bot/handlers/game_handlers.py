@@ -13,9 +13,11 @@ from dotenv import load_dotenv
 
 from keyboards.game_keyboards import *
 from keyboards.common_keyboards import *
+from keyboards.character_keyboards import classes_keyboard
 from server_requests.game_requests import *
+from server_requests.character_requests.character_requests import get_char_by_user_id, get_char
 from handlers.commands_handlers import main_menu_query
-from converter import game_card
+from converter import game_card, game_character_card
 from forms import Form
 
 
@@ -50,21 +52,37 @@ async def choose_game_action(callback_query: types.CallbackQuery, state: FSMCont
         await state.set_state(Form.game_params_menu)
     if callback_query.data == "find_game":
         await callback_query.answer()
-        await state.update_data({"game_action": "find_game"})
-        await state.update_data({"game_params": {
-                "type": None,
-                "format": None,
-                "city": None,
-                "level": None,
-                "player_count": None,
-                "name": None,
-                "seed": None
-            }})
-        await callback_query.message.delete()
-        await callback_query.message.answer(text='*_Поиск партий:_*',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard()))
-        await state.set_state(Form.game_filters_menu)
+        user_chars = await get_char_by_user_id(callback_query.from_user.id)
+        if len(user_chars) == 0:
+            await callback_query.message.edit_caption(caption="У вас ещё нет персонажей. Для присоединения к партиям необходимо наличие хотя бы одного персонажа.", reply_markup=create_new_characrer_keyboard)
+            await state.set_state(Form.create_char_game_menu)
+        else:
+            await state.update_data({"game_action": "find_game"})
+            await state.update_data({"game_params": {
+                    "type": None,
+                    "format": None,
+                    "city": None,
+                    "level": None,
+                    "player_count": None,
+                    "name": None,
+                    "seed": None
+                }})
+            await callback_query.message.delete()
+            await callback_query.message.answer(text='*_Поиск партий:_*',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard()))
+            await state.set_state(Form.game_filters_menu)
     if callback_query.data == "main_menu":
         await main_menu_query(callback_query, state)
+
+@router.callback_query(Form.create_char_game_menu)
+async def create_char_game_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    if callback_query.data == "back":
+        await state.set_state(Form.choose_game_action)
+        await callback_query.message.edit_caption(reply_markup=game_menu_keyboard)
+    else:
+        await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/char_create.png")))
+        await callback_query.message.edit_caption(caption="Ответьте на три вопроса, а мы заполним все остальное! :)\n\nВыберите класс вашего персонажа:",  reply_markup=classes_keyboard)
+        await state.set_state(Form.auto_char_class)
     
 @router.callback_query(Form.game_params_menu)
 async def game_params_menu(callback_query: types.CallbackQuery, state: FSMContext):
@@ -169,6 +187,14 @@ async def game_filters_menu(callback_query: types.CallbackQuery, state: FSMConte
     if callback_query.data == "find_game_seed":
         await callback_query.message.edit_text(text='Введите сид партии, которую вы ищите:', reply_markup=back_keyboard)
         await state.set_state(Form.game_seed_menu)
+    if callback_query.data == "find_game":
+        games = await get_game_filters(game_params)
+        if len(games) > 0:
+            game_arr = [[f'{game["name"]}', game["seed"]] for game in games]
+            await callback_query.message.edit_text(text=f'Найдены партии ({len(games)}):', reply_markup=InlineKeyboardMarkup(inline_keyboard=(await build_arr_keyboard(game_arr))))
+            await state.set_state(Form.choose_game_menu)
+        else:
+            await callback_query.message.edit_text(text='*_Поиск партий:_*\n\nПартий с такими параметрами не существует\.',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard(game_params)))
     if callback_query.data == "back":
         await state.set_state(Form.choose_game_action)
         await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/session.png")), reply_markup=game_menu_keyboard)
@@ -178,7 +204,7 @@ async def game_format_menu(callback_query: types.CallbackQuery, state: FSMContex
     "Меню с форматом проведения партии"
     await callback_query.answer()
     game_params = (await state.get_data())["game_params"]
-    game_params["format"] = callback_query.data
+    game_params["format"] = callback_query.data if callback_query.data != "clear_filter" else None
     if callback_query.data == "Онлайн":
         game_params["city"] = None
     await state.update_data({"game_params": game_params})
@@ -194,7 +220,7 @@ async def game_type_menu(callback_query: types.CallbackQuery, state: FSMContext)
     "Меню с типом партии"
     await callback_query.answer()
     game_params = (await state.get_data())["game_params"]
-    game_params["type"] = callback_query.data
+    game_params["type"] = callback_query.data if callback_query.data != "clear_filter" else None
     await state.update_data({"game_params": game_params})
     if "description" in game_params:
         await state.set_state(Form.game_params_menu)
@@ -208,7 +234,7 @@ async def game_level_menu(callback_query: types.CallbackQuery, state: FSMContext
     "Меню с уровнем партии"
     await callback_query.answer()
     game_params = (await state.get_data())["game_params"]
-    game_params["level"] = callback_query.data
+    game_params["level"] = callback_query.data if callback_query.data != "clear_filter" else None
     await state.update_data({"game_params": game_params})
     if "description" in game_params:
         await state.set_state(Form.game_params_menu)
@@ -312,19 +338,10 @@ async def game_ready(callback_query: types.CallbackQuery, state: FSMContext):
         await state.set_state(Form.game_params_menu)
         await callback_query.message.edit_text(text='*_Создание партии:_*',parse_mode="MarkdownV2",reply_markup=(await game_params_keyboard(game_params)))
     else:
-        game = {
-            "name": game_params["name"],
-            "description": game_params["description"],
-            "is_online": True if game_params["format"] == "Онлайн" else False,
-            "place": game_params["city"],
-            "game_level": game_params["level"],
-            "number_of_players": int(game_params["player_count"]),
-            "master_id": str(callback_query.from_user.id),
-            "players_id": [],
-            "seed": "test"
-        }
-        game = await create_game(game)
-        await callback_query.message.edit_text(text=f"Вы создали новую партию \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game_params)),parse_mode="MarkdownV2")
+        game_params["players_id"] = []
+        game_params["master_id"] = str(callback_query.from_user.id)
+        game = await create_game(game_params)
+        await callback_query.message.edit_text(text=f"Вы создали новую партию \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game_params)),parse_mode="MarkdownV2", reply_markup=await copy_seed_keyboard(game["seed"]))
 
 @router.message(Form.game_seed_menu)
 async def game_seed_menu(message: types.Message, state: FSMContext):
@@ -333,24 +350,73 @@ async def game_seed_menu(message: types.Message, state: FSMContext):
     if len(game) == 0:
         await message.answer(text='Партии с таким сидом не существует. Пожалуйста, введите действительный сид:', reply_markup=back_keyboard)
     else:
-        game_params = {
-            "type": "Открытая" | "Закрытая",
-            "format": "Онлайн" | "Оффлайн",
-            "city": "",
-            "level": "Лёгкий" | "Средний" | "Сложный" | "Социальный",
-            "player_count": None,
-            "name": None
-        }
-        await message.answer(text=f"Вы создали новую партию \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game_params)),parse_mode="MarkdownV2")
+        game = game[0]
+        await state.update_data({"game": game})
+        if game["type"] == "Открытая":
+            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=await join_game_keyboard(game["url"]))
+        else:
+            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=request_join_game_keyboard)
+        await state.set_state(Form.join_game_menu)
+
+@router.callback_query(Form.join_game_menu)
+async def join_game_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    "Присоединение к найденной партии"
+    await callback_query.answer()
     game_params = (await state.get_data())["game_params"]
-    game_params["city"] = message.text
-    await state.update_data({"game_params": game_params})
-    if "description" in game_params:
-        await state.set_state(Form.game_params_menu)
-        await message.answer(text='*_Создание партии:_*',parse_mode="MarkdownV2",reply_markup=(await game_params_keyboard(game_params)))
-    else:
+    if callback_query.data == "back":
         await state.set_state(Form.game_filters_menu)
-        await message.answer(text='*_Поиск партий:_*',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard(game_params)))
+        await callback_query.message.edit_text(text='*_Поиск партий:_*',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard(game_params)))
+    else:
+        user_chars = await get_char_by_user_id(callback_query.from_user.id)
+        char_arr = [[f'{char["name"]} {char["surname"]}', str(char["id"])] for char in user_chars]
+        await callback_query.message.edit_text(text='Выберите персонажа, которого вы хотите отыгрывать в партии:', reply_markup=InlineKeyboardMarkup(inline_keyboard=(await build_arr_keyboard(char_arr))))
+        await state.set_state(Form.choose_char_menu)
+
+@router.callback_query(Form.choose_char_menu)
+async def choose_char_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    """Выбор персонажа для партии"""
+    await callback_query.answer()
+    game_params = (await state.get_data())["game_params"]
+    if 'left' in callback_query.data or 'right' in callback_query.data:
+        user_chars = await get_char_by_user_id(callback_query.from_user.id)
+        char_arr = [[f'{char["name"]} {char["surname"]}', str(char["id"])] for char in user_chars]
+        await callback_query.message.edit_reply_markup(reply_markup=InlineKeyboardMarkup(inline_keyboard=(await change_keyboard_page(callback_query.data, char_arr))))
+    elif callback_query.data == "dict_kb_back":
+        await callback_query.message.edit_text(text='*_Поиск партий:_*',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard(game_params)))
+        await state.set_state(Form.game_filters_menu)
+    else:
+        char = (await get_char(callback_query.data))[0]
+        await callback_query.message.edit_text(text=(await game_character_card(char)),parse_mode="MarkdownV2",reply_markup=choose_game_character_keyboard)
+        await state.set_state(Form.game_send_char_menu)
+        await state.update_data({"char": char})
+
+@router.callback_query(Form.choose_game_menu)
+async def choose_game_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    """Выбор партии"""
+    await callback_query.answer()
+    game_params = (await state.get_data())["game_params"]
+    games = await get_game_filters(game_params)
+    if 'left' in callback_query.data or 'right' in callback_query.data:
+        game_arr = [[f'{game["name"]}', game["seed"]] for game in games]
+        await callback_query.message.edit_reply_markup(reply_markup=InlineKeyboardMarkup(inline_keyboard=(await change_keyboard_page(callback_query.data, game_arr))))
+    elif callback_query.data == "dict_kb_back":
+        await callback_query.message.edit_text(text='*_Поиск партий:_*',parse_mode="MarkdownV2",reply_markup=(await game_filters_keyboard(game_params)))
+        await state.set_state(Form.game_filters_menu)
+    else:
+        game = (await get_game_filters({"seed": callback_query.data}))[0]
+        await callback_query.message.edit_text(text=(await game_card(game)),parse_mode="MarkdownV2",reply_markup=choose_game_character_keyboard)
+        await state.set_state(Form.join_game_menu)
+
+@router.callback_query(Form.game_send_char_menu)
+async def game_send_char_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    "Отправка заявки на присоединение к партии"
+    await callback_query.answer()
+    game_params = (await state.get_data())["game_params"]
+    if callback_query.data == "back":
+        user_chars = await get_char_by_user_id(callback_query.from_user.id)
+        char_arr = [[f'{char["name"]} {char["surname"]}', str(char["id"])] for char in user_chars]
+        await callback_query.message.edit_text(text='Выберите персонажа, которого вы хотите отыгрывать в партии:', reply_markup=InlineKeyboardMarkup(inline_keyboard=(await build_arr_keyboard(char_arr))))
+        await state.set_state(Form.choose_char_menu)
 
 @router.callback_query(Form.game_seed_menu)
 async def clear_game_seed(callback_query: types.CallbackQuery, state: FSMContext):

@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CopyTextButton
 from converter import word_formation
 
 
@@ -59,6 +59,32 @@ create_game_filter_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="back")],
     ])
 
+request_join_game_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Запросить присоединение к партии", callback_data="request_join_game")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")],
+    ])
+
+create_new_characrer_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Создать нового", callback_data="create_char")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")],
+    ])
+
+choose_game_character_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Выбрать персонажа", callback_data="choose_char")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")],
+    ])
+
+async def join_game_keyboard(url: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Присоединиться к партии", url=url)],
+        [InlineKeyboardButton(text="Назад", callback_data="back")],
+    ])
+
+async def copy_seed_keyboard(seed: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Копировать сид", copy_text=CopyTextButton(text=seed))]
+    ])
+
 async def game_params_keyboard(
         game_params: dict = {
             "type": None,
@@ -94,7 +120,7 @@ async def game_params_keyboard(
         [InlineKeyboardButton(text=player_count if player_count else "Количество игроков", callback_data="player_count"),
           InlineKeyboardButton(text=game_params["name"] if game_params["name"] else "Название", callback_data="name")],
         [InlineKeyboardButton(text=description if description else "Описание", callback_data="description"),
-         InlineKeyboardButton(text="Создать игру", callback_data="game_ready")],
+         InlineKeyboardButton(text="Создать партию", callback_data="game_ready")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]
     ])
 
@@ -130,5 +156,5 @@ async def game_filters_keyboard(
         [InlineKeyboardButton(text="Войти через сид", callback_data="find_game_seed"),
           InlineKeyboardButton(text="Очистить фильтры", callback_data="clear_filters")],
         [InlineKeyboardButton(text="Назад", callback_data="back"),
-         InlineKeyboardButton(text="Найти игру", callback_data="find_game")]
+         InlineKeyboardButton(text="Поиск партий", callback_data="find_game")]
     ])
