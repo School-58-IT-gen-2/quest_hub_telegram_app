@@ -74,7 +74,12 @@ choose_game_character_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="back")],
     ])
 
-async def join_game_keyboard(url: str) -> InlineKeyboardMarkup:
+join_game_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Присоединиться к партии")],
+        [InlineKeyboardButton(text="Назад", callback_data="back")],
+    ])
+
+async def url_join_game_keyboard(url: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Присоединиться к партии", url=url)],
         [InlineKeyboardButton(text="Назад", callback_data="back")],

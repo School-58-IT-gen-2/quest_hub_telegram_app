@@ -353,7 +353,7 @@ async def game_seed_menu(message: types.Message, state: FSMContext):
         game = game[0]
         await state.update_data({"game": game})
         if game["type"] == "Открытая":
-            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=await join_game_keyboard(game["url"]))
+            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=join_game_keyboard)
         else:
             await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=request_join_game_keyboard)
         await state.set_state(Form.join_game_menu)
