@@ -75,7 +75,7 @@ choose_game_character_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 join_game_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Присоединиться к партии")],
+        [InlineKeyboardButton(text="Присоединиться к партии", callback_data="join_game")],
         [InlineKeyboardButton(text="Назад", callback_data="back")],
     ])
 
