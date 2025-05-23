@@ -72,7 +72,7 @@ async def view_char_params(callback_query: types.CallbackQuery, state: FSMContex
         await callback_query.message.edit_text(text='👤 *_Основные параметры:_*', reply_markup=main_char_info_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.main_char_info_menu)
     if callback_query.data == "lvl":
-        await callback_query.message.edit_text(text=f'*_Текущий уровень:_* {char['lvl'] if char['lvl'] else 1}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f'*_Текущий уровень:_* {char["lvl"] if char["lvl"] else 1}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.lvl_menu)
     if callback_query.data == "spells":
         await callback_query.message.edit_text(text='🪄 *_Заклинания:_*\n' + (await character_card(char))["spells"], reply_markup=edit_keyboard,parse_mode="MarkdownV2")

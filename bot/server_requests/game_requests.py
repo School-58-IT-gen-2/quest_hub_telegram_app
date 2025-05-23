@@ -14,7 +14,7 @@ async def get_game(game_id: str) -> dict:
     Returns:
         dict: Словарь с данными партии.
     """
-    response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game",params={"game_id": game_id})
+    response = httpx.get(f'{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game',params={"game_id": game_id})
     return response.json()
 
 async def get_game_filters(filters: dict) -> list:
@@ -24,7 +24,7 @@ async def get_game_filters(filters: dict) -> list:
     Returns:
         list: Список с найденными партиями.
     """
-    response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game_with_params", params=filters)
+    response = httpx.get(f'{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game_with_params', params=filters)
     return response.json()
 
 async def create_game(game_data: dict) -> dict: 
@@ -37,7 +37,7 @@ async def create_game(game_data: dict) -> dict:
     Returns:
         dict: Словарь с данными новой партии.
     """
-    response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/create",json=game_data)
+    response = httpx.post(f'{os.getenv("QUESTHUB_URL")}/api/v1/games/create',json=game_data)
     return response.json()
 
 async def update_game(game_data: dict) -> dict:
@@ -50,7 +50,7 @@ async def update_game(game_data: dict) -> dict:
     Returns:
         dict: Словарь с новыми данными партии.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/update_game",json=game_data)
+    response = httpx.put(f'{os.getenv("QUESTHUB_URL")}/api/v1/games/update_game',json=game_data)
     return response.json()
 
 async def delete_game(game_id: str) -> dict:
@@ -63,5 +63,5 @@ async def delete_game(game_id: str) -> dict:
     Returns:
         dict: Словарь с данными удалённой партии.
     """
-    response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/delete_game",params={"game_id": game_id})
+    response = httpx.delete(f'{os.getenv("QUESTHUB_URL")}/api/v1/games/delete_game',params={"game_id": game_id})
     return response.json()

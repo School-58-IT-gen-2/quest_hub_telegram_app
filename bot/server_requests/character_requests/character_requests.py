@@ -14,7 +14,7 @@ async def get_char(char_id: str) -> dict:
     Returns:
         dict: Словарь с данными персонажа.
     """
-    response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{char_id}")
+    response = httpx.get(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{char_id}')
     return response.json() 
 
 async def create_char(char_data: dict) -> dict:
@@ -27,7 +27,7 @@ async def create_char(char_data: dict) -> dict:
     Returns:
         dict: Словарь с данными нового персонажа.
     """
-    response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list",json=char_data)
+    response = httpx.post(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list',json=char_data)
     return response.json()
 
 async def update_char(char_data: dict, char_id: str) -> dict:
@@ -41,7 +41,7 @@ async def update_char(char_data: dict, char_id: str) -> dict:
     Returns:
         dict: Словарь с новыми данными персонажа.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list",json=char_data,params={"character_id": char_id})
+    response = httpx.put(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list',json=char_data,params={"character_id": char_id})
     return response.json()
 
 async def delete_char(char_id: str) -> dict:
@@ -54,7 +54,7 @@ async def delete_char(char_id: str) -> dict:
     Returns:
         dict: Словарь с данными удалённого персонажа.
     """
-    response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{char_id}")
+    response = httpx.delete(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{char_id}')
     return response.json()
 
 async def get_char_by_user_id(user_id: str) -> list:
@@ -67,7 +67,7 @@ async def get_char_by_user_id(user_id: str) -> list:
     Returns:
         list: Список со всеми персонажами пользователя.
     """
-    response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{user_id}/")
+    response = httpx.get(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/char-list/{user_id}/')
     return response.json()
 
 async def auto_create_char(auto_char_data: dict) -> dict:
@@ -80,5 +80,5 @@ async def auto_create_char(auto_char_data: dict) -> dict:
     Returns:
         dict: Словарь с данными сгенерированного персонажа.
     """
-    response = httpx.post(f"{os.getenv("RND_URL")}/create-character-list",json=auto_char_data)
+    response = httpx.post(f'{os.getenv("RND_URL")}/create-character-list',json=auto_char_data)
     return response.json()

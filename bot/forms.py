@@ -13,6 +13,21 @@ class Form(StatesGroup):
     auto_char_gender = State()
     regenerate_char = State()
 
+    # constructor states
+    CHOOSING_CLASS = State()
+    CHOOSING_RACE = State()
+    CHOOSING_SUBRACE = State()
+    CHOOSING_GENDER = State()
+    CHOOSING_CHARACTERISTICS = State()
+    SETTING_CHARACTERISTIC = State()
+    CHOOSING_SKILLS = State()
+    CHOOSING_INVENTORY = State()
+    SELECTING_INVENTORY_ITEM = State()
+    CHOOSING_AGE = State()
+    CHOOSING_STORY = State()
+    CHOOSING_NAME = State()
+
+
     character_card = State()
 
     char_name = State()

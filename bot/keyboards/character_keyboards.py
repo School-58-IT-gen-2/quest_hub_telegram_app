@@ -1,5 +1,10 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+create_method_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🚀 Быстро", callback_data="quick_create")],
+        [InlineKeyboardButton(text="⚙️ Подробно", callback_data="detailed_create")]
+    ])
 
 characters_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Список персонажей", callback_data="view_characters")],[InlineKeyboardButton(text="Создать нового", callback_data="create_character")],[InlineKeyboardButton(text="Главное меню", callback_data="main_menu")]
@@ -70,3 +75,15 @@ name_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 language_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Удалить язык", callback_data="delete_language")],
         [InlineKeyboardButton(text="Назад", callback_data="back")]])
+
+
+def get_keyboard(options: list, add_random=True, add_back=True):
+    builder = InlineKeyboardBuilder()
+    for opt in options:
+        builder.button(text=opt, callback_data=opt)
+    if add_random:
+        builder.button(text="🎲 Случайно", callback_data="__random__")
+    if add_back:
+        builder.button(text="⬅️ Назад", callback_data="__back__")
+    builder.adjust(2)
+    return builder.as_markup()

@@ -25,10 +25,10 @@ async def inventory(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_text(text=f'🛡️ *_Амуниция:_*', reply_markup=InlineKeyboardMarkup(inline_keyboard=(await build_arr_keyboard(ammunition_arr))),parse_mode="MarkdownV2")
         await state.set_state(Form.ammunition_menu)
     if callback_query.data == "exp":
-        await callback_query.message.edit_text(text=f'*_Текущий опыт:_* {char['experience']}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f'*_Текущий опыт:_* {char["experience"]}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.experience_menu)
     if callback_query.data == "gold":
-        await callback_query.message.edit_text(text=f'*_Текущее количество золота:_* {char['gold']}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f'*_Текущее количество золота:_* {char["gold"]}', reply_markup=edit_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.gold_menu)
     if callback_query.data == "back":
         await callback_query.message.edit_text(text=(await character_card(char))["main_char_info"],parse_mode="MarkdownV2",reply_markup=character_card_keyboard)
@@ -107,7 +107,7 @@ async def gold_menu(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     else:
-        await callback_query.message.edit_text(text=f'*_Текущее количество золота:_* {char['gold']}\n\nВведите количество золота\, которое вы хотите добавить/убрать\. Например `+10` или `-4`\.',parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f"*_Текущее количество золота:_* {char['gold']}\n\nВведите количество золота\, которое вы хотите добавить/убрать\. Например `+10` или `-4`\.",parse_mode="MarkdownV2")
         await state.set_state(Form.change_gold)
 
 @router.message(Form.change_gold)
@@ -200,7 +200,7 @@ async def experience_menu(callback_query: types.CallbackQuery, state: FSMContext
         await callback_query.message.edit_text(text='📋 *_Инвентарь:_*', reply_markup=inventory_keyboard,parse_mode="MarkdownV2")
         await state.set_state(Form.inventory_menu)
     else:
-        await callback_query.message.edit_text(text=f'*_Текущий опыт:_* {char['experience']}\n\nВведите количество опыта\, которое вы хотите добавить/убрать\. Например `+12` или `-3`\.',parse_mode="MarkdownV2")
+        await callback_query.message.edit_text(text=f"*_Текущий опыт:_* {char['experience']}\n\nВведите количество опыта\, которое вы хотите добавить/убрать\. Например `+12` или `-3`\.",parse_mode="MarkdownV2")
         await state.set_state(Form.change_xp)
 
 @router.message(Form.change_xp)

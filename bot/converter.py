@@ -288,7 +288,7 @@ async def format_traits(data: dict) -> dict:
     return traits_dict
 
 async def game_card(game_params: dict) -> str:
-    text = f"```Партия\n{game_params["name"]}\n"
+    text = f"```Партия\n{game_params['name']}\n"
     text += await align_text(['Формат', game_params["format"]]) + '\n'
     text += await align_text(['Тип', game_params["type"]]) + '\n'
     if game_params["format"] == "Оффлайн":
@@ -315,7 +315,7 @@ async def character_card(data: dict) -> dict:
     age = '*_' + (await word_formation(data.get('age', 'Не указан'), 'год', 'года', 'лет')) + '_*'
     
     card = (
-        f'*_\U00002E3A {await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))} \U00002E3A_*\n\n'
+        f"*_\U00002E3A {await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))} \U00002E3A_*\n\n"
         "👤 *_Основные параметры:_*\n"
         "```Параметры\n"
         f"{await align_text(['Возраст', age[2:-2]], 22)}\n"
@@ -351,7 +351,7 @@ async def character_card(data: dict) -> dict:
         card += "\n\n🛠️ *_Навыки:_*\n"
         card += "\n".join(f">\U00002022 {skill}" for skill in skills)
 
-    name = f'*_{await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))}_*'
+    name = f"*_{await tg_text_convert(data.get('name', 'Безымянный'))} {await tg_text_convert(data.get('surname', ''))}_*"
 
     backstory = f"📜 *_Предыстория:_*\n\n>" + "\n>".join((await tg_text_convert(data.get('backstory', 'Нет данных'))).split('\n'))
 

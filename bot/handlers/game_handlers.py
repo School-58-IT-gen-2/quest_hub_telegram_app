@@ -341,7 +341,7 @@ async def game_ready(callback_query: types.CallbackQuery, state: FSMContext):
         game_params["players_id"] = []
         game_params["master_id"] = str(callback_query.from_user.id)
         game = await create_game(game_params)
-        await callback_query.message.edit_text(text=f"Вы создали новую партию \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game_params)),parse_mode="MarkdownV2", reply_markup=await copy_seed_keyboard(game["seed"]))
+        await callback_query.message.edit_text(text=f'Вы создали новую партию \(сид: `{game["seed"]}`\):\n\n' + (await game_card(game_params)),parse_mode="MarkdownV2", reply_markup=await copy_seed_keyboard(game["seed"]))
 
 @router.message(Form.game_seed_menu)
 async def game_seed_menu(message: types.Message, state: FSMContext):
@@ -353,9 +353,9 @@ async def game_seed_menu(message: types.Message, state: FSMContext):
         game = game[0]
         await state.update_data({"game": game})
         if game["type"] == "Открытая":
-            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=join_game_keyboard)
+            await message.answer(text=f'Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n' + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=join_game_keyboard)
         else:
-            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=request_join_game_keyboard)
+            await message.answer(text=f'Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n' + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=request_join_game_keyboard)
         await state.set_state(Form.join_game_menu)
 
 @router.callback_query(Form.join_game_menu)

@@ -15,7 +15,7 @@ async def get_note(char_id: str, note_id: str) -> dict:
     Returns:
         dict: Словарь с данными заметки.
     """
-    response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes", params={"note_id": note_id})
+    response = httpx.get(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes', params={"note_id": note_id})
     return response.json()
 
 async def add_note(char_id: str, note: dict) -> dict:
@@ -29,7 +29,7 @@ async def add_note(char_id: str, note: dict) -> dict:
     Returns:
         dict: Словарь с данными добавленной заметки.
     """
-    response = httpx.post(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes",json=note)
+    response = httpx.post(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes',json=note)
     return response.json()
 
 async def delete_note(char_id: str, note_id: str) -> dict:
@@ -43,7 +43,7 @@ async def delete_note(char_id: str, note_id: str) -> dict:
     Returns:
         dict: Словарь с данными удалённой заметки.
     """
-    response = httpx.delete(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes",params={"note_id": note_id})
+    response = httpx.delete(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes',params={"note_id": note_id})
     return response.json()
 
 async def update_note(char_id: str, note: dict) -> dict:
@@ -57,5 +57,5 @@ async def update_note(char_id: str, note: dict) -> dict:
     Returns:
         dict: Словарь с данными обновлённой заметки.
     """
-    response = httpx.put(f"{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes",json=note)
+    response = httpx.put(f'{os.getenv("QUESTHUB_URL")}/api/v1/characters/{char_id}/notes',json=note)
     return response.json()
