@@ -79,6 +79,11 @@ join_game_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="back")],
     ])
 
+tutorial_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Как создавать группы и добавлять администраторов", url='https://telegram.org/faq#q-how-do-i-create-a-group')],
+        
+    ])
+
 async def approve_char_keyboard(char_id: str, seed: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Одобрить заявку", callback_data=f"approve_{char_id}_{seed}")],

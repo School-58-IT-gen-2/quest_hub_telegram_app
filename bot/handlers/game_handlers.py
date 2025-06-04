@@ -344,6 +344,7 @@ async def game_ready(callback_query: types.CallbackQuery, state: FSMContext):
         game_params["master_id"] = str(callback_query.from_user.id)
         game = await create_game(game_params)
         await callback_query.message.edit_text(text=f"Вы создали новую партию \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game_params)),parse_mode="MarkdownV2", reply_markup=await copy_seed_keyboard(game["seed"]))
+        await callback_query.message.answer(text="Чтобы начать подбор игроков, вам необходимо:\n\n1. Создать группу и добавить туда этого бота.\n2. Сделать бота администратором.\n3. Начать диалог с ботом, используя команду /start.", reply_markup=tutorial_keyboard)
 
 @router.message(Form.game_seed_menu)
 async def game_seed_menu(message: types.Message, state: FSMContext):
