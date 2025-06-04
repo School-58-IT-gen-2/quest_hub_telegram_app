@@ -295,7 +295,10 @@ async def game_card(game_params: dict) -> str:
         text += await align_text(['Город', game_params["city"].capitalize()]) + '\n'
     if game_params["level"]:
         text += await align_text(['Уровень', game_params["level"]]) + '\n'
-    player_count = await word_formation(int(game_params["player_count"]), 'игрок', 'игрока', 'игроков')
+    if "char_id" in game_params:
+        player_count = f'{len(game_params["char_id"])}/{game_params["player_count"]}'
+    else:
+        player_count = await word_formation(int(game_params["player_count"]), 'игрок', 'игрока', 'игроков')
     text += await align_text(['Количество игроков', player_count]) + '\n'
     if game_params["description"]:
         text += game_params["description"]

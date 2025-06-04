@@ -79,10 +79,15 @@ join_game_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Назад", callback_data="back")],
     ])
 
+async def approve_char_keyboard(char_id: str, seed: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Одобрить заявку", callback_data=f"approve_{char_id}_{seed}")],
+        [InlineKeyboardButton(text="Отклонить заявку", callback_data=f"decline_{char_id}_{seed}")],
+    ])
+
 async def url_join_game_keyboard(url: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Присоединиться к партии", url=url)],
-        [InlineKeyboardButton(text="Назад", callback_data="back")],
     ])
 
 async def copy_seed_keyboard(seed: str) -> InlineKeyboardMarkup:

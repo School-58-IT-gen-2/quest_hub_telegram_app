@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 
 from handlers.character import char_menus_handlers, create_char_handlers, inventory_handlers, main_info_handlers, notes_handlers, spells_handlers, traits_handlers
 from handlers import commands_handlers, profile_handlers, game_handlers
+from handlers.game_handlers import bot
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
 routers = [

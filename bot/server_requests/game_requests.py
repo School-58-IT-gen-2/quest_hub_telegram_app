@@ -27,6 +27,19 @@ async def get_game_filters(filters: dict) -> list:
     response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game_with_params", params=filters)
     return response.json()
 
+async def get_game_seed(seed: str) -> dict:
+    """
+    Запрос на получение партии.
+    
+    Args:
+        seed (str): Сид партии.
+
+    Returns:
+        dict: Словарь с данными партии.
+    """
+    response = httpx.get(f"{os.getenv("QUESTHUB_URL")}/api/v1/games/view_game_with_seed",params={"seed": seed})
+    return response.json()
+
 async def create_game(game_data: dict) -> dict: 
     """
     Запрос на создание партии.

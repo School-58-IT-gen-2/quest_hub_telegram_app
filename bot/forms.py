@@ -83,3 +83,4 @@ class Form(StatesGroup):
     choose_char_menu = State()
     game_send_char_menu = State()
     choose_game_menu = State()
+    connect_game_chat = State()
