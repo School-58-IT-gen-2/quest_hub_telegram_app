@@ -392,7 +392,7 @@ async def choose_char_menu(callback_query: types.CallbackQuery, state: FSMContex
         await state.set_state(Form.game_filters_menu)
     else:
         char = (await get_char(callback_query.data))[0]
-        reply_markup = back_keyboard if callback_query.message.from_user.id == int(game["master_id"]) else choose_game_character_keyboard
+        reply_markup = back_keyboard if callback_query.from_user.id == int(game["master_id"]) else choose_game_character_keyboard
         await callback_query.message.edit_text(text=(await game_character_card(char)),parse_mode="MarkdownV2",reply_markup=reply_markup)
         await state.set_state(Form.game_send_char_menu)
         await state.update_data({"char": char})
@@ -412,7 +412,7 @@ async def choose_game_menu(callback_query: types.CallbackQuery, state: FSMContex
     else:
         game = (await get_game_filters({"seed": callback_query.data}))[0]
         await state.update_data({"game": game})
-        reply_markup = back_keyboard if callback_query.message.from_user.id == int(game["master_id"]) else choose_game_character_keyboard
+        reply_markup = back_keyboard if callback_query.from_user.id == int(game["master_id"]) else choose_game_character_keyboard
         await callback_query.message.edit_text(text=(await game_card(game)),parse_mode="MarkdownV2",reply_markup=reply_markup)
         await state.set_state(Form.join_game_menu)
 
