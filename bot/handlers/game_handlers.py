@@ -33,6 +33,32 @@ async def games_menu(callback_query: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.choose_game_action)
     await callback_query.message.edit_media(media=InputMediaPhoto(media=FSInputFile("assets/session.png")), reply_markup=game_menu_keyboard)
 
+@router.callback_query(lambda c: "approve_" in c.data)
+async def approve_char(callback_query: types.CallbackQuery, state: FSMContext):
+    "Подтверждение присоединения персонажа к партии"
+    await callback_query.answer()
+    char = (await get_char(callback_query.data.split('_')[1]))[0]
+    game = (await get_game_filters({"seed": callback_query.data.split('_')[2]}))[0]
+    game["char_id"].append(char["user_id"])
+    link = (await bot.create_chat_invite_link(int(game["chat_id"]))).invite_link
+    await bot.send_message(int(char["user_id"]), text=f'Ваша заявка на присоединение к партии {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\) была одобрена\.',parse_mode="MarkdownV2", reply_markup=await url_join_game_keyboard(link))
+    await bot.send_message(int(game["chat_id"]), text="К партии присоединился новый персонаж:\n\n" + (await game_character_card(char)),parse_mode="MarkdownV2")
+    await callback_query.message.edit_text("Персонаж был одобрен.")
+    if len(game["char_id"]) == game["player_count"]:
+        game["active"] = False
+        await bot.send_message(int(game["chat_id"]), text="Набор игроков в партию завершился.")
+    await update_game(game)
+    await state.update_data({"game": game})
+
+@router.callback_query(lambda c: "decline_" in c.data)
+async def decline_char(callback_query: types.CallbackQuery, state: FSMContext):
+    "Отклонение присоединения персонажа к партии"
+    await callback_query.answer()
+    char = (await get_char(callback_query.data.split('_')[1]))[0]
+    game = (await get_game_filters({"seed": callback_query.data.split('_')[2]}))[0]
+    await bot.send_message(int(char["user_id"]), text=f'Ваша заявка на присоединение к партии {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\) была отклонена её владельцем\.', parse_mode="MarkdownV2")
+    await callback_query.message.edit_text("Персонаж был отклонён.")
+
 @router.callback_query(Form.choose_game_action)
 async def choose_game_action(callback_query: types.CallbackQuery, state: FSMContext):
     "Меню с партиями"
@@ -470,31 +496,3 @@ async def connect_game_chat(message: types.Message, state: FSMContext):
             await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\nТеперь в данный чат будут отправляться персонажи присоединившихся игроков\.\n\n" + (await game_card(game)),parse_mode="MarkdownV2")
         else:
             await message.answer("Вы не являетесь владельцем этой партии.")
-
-@router.callback_query(lambda c: "approve_" in c.data)
-async def approve_char(callback_query: types.CallbackQuery, state: FSMContext):
-    "Подтверждение присоединения персонажа к партии"
-    await callback_query.answer()
-    await state.clear()
-    char = (await get_char(callback_query.data.split('_')[1]))[0]
-    game = (await get_game_filters({"seed": callback_query.data.split('_')[2]}))[0]
-    game["char_id"].append(char["user_id"])
-    link = (await bot.create_chat_invite_link(int(game["chat_id"]))).invite_link
-    await bot.send_message(int(char["user_id"]), text=f'Ваша заявка на присоединение к партии {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\) была одобрена\.',parse_mode="MarkdownV2", reply_markup=await url_join_game_keyboard(link))
-    await bot.send_message(int(game["chat_id"]), text="К партии присоединился новый персонаж:\n\n" + (await game_character_card(char)),parse_mode="MarkdownV2")
-    await callback_query.message.edit_text("Персонаж был одобрен.")
-    if len(game["char_id"]) == game["player_count"]:
-        game["active"] = False
-        await bot.send_message(int(game["chat_id"]), text="Набор игроков в партию завершился.")
-    await update_game(game)
-    await state.update_data({"game": game})
-
-@router.callback_query(lambda c: "decline_" in c.data)
-async def decline_char(callback_query: types.CallbackQuery, state: FSMContext):
-    "Отклонение присоединения персонажа к партии"
-    await callback_query.answer()
-    await state.clear()
-    char = (await get_char(callback_query.data.split('_')[1]))[0]
-    game = (await get_game_filters({"seed": callback_query.data.split('_')[2]}))[0]
-    await bot.send_message(int(char["user_id"]), text=f'Ваша заявка на присоединение к партии {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\) была отклонена её владельцем\.', parse_mode="MarkdownV2")
-    await callback_query.message.edit_text("Персонаж был отклонён.")
