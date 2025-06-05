@@ -340,6 +340,7 @@ async def game_ready(callback_query: types.CallbackQuery, state: FSMContext):
         await state.set_state(Form.game_params_menu)
         await callback_query.message.edit_text(text='*_Создание партии:_*',parse_mode="MarkdownV2",reply_markup=(await game_params_keyboard(game_params)))
     else:
+        await state.clear()
         game_params["char_id"] = []
         game_params["master_id"] = str(callback_query.from_user.id)
         game = await create_game(game_params)
