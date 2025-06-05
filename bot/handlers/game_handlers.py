@@ -475,6 +475,7 @@ async def connect_game_chat(message: types.Message, state: FSMContext):
 async def approve_char(callback_query: types.CallbackQuery, state: FSMContext):
     "Подтверждение присоединения персонажа к партии"
     await callback_query.answer()
+    await state.clear()
     char = (await get_char(callback_query.data.split('_')[1]))[0]
     game = (await get_game_filters({"seed": callback_query.data.split('_')[2]}))[0]
     game["char_id"].append(char["user_id"])
@@ -492,6 +493,7 @@ async def approve_char(callback_query: types.CallbackQuery, state: FSMContext):
 async def decline_char(callback_query: types.CallbackQuery, state: FSMContext):
     "Отклонение присоединения персонажа к партии"
     await callback_query.answer()
+    await state.clear()
     char = (await get_char(callback_query.data.split('_')[1]))[0]
     game = (await get_game_filters({"seed": callback_query.data.split('_')[2]}))[0]
     await bot.send_message(int(char["user_id"]), text=f'Ваша заявка на присоединение к партии {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\) была отклонена её владельцем\.', parse_mode="MarkdownV2")
