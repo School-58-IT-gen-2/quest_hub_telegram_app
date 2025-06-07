@@ -385,7 +385,7 @@ async def game_seed_menu(message: types.Message, state: FSMContext):
         reply_markup = join_game_keyboard if game["type"] == "Открытая" else request_join_game_keyboard
         if message.from_user.id == int(game["master_id"]):
             reply_markup = back_keyboard
-        await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=reply_markup)
+        await message.answer(text=f"Найдена партия {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\):\n\n" + (await game_card(game)),parse_mode="MarkdownV2", reply_markup=reply_markup)
         await state.set_state(Form.join_game_menu)
 
 @router.callback_query(Form.join_game_menu)
@@ -493,6 +493,6 @@ async def connect_game_chat(message: types.Message, state: FSMContext):
             game["chat_id"] = str(message.chat.id)
             await update_game(game)
             await state.update_data({"game_params": game})
-            await message.answer(text=f"Найдена партия {game["name"]} \(сид: `{game["seed"]}`\):\n\nТеперь в данный чат будут отправляться персонажи присоединившихся игроков\.\n\n" + (await game_card(game)),parse_mode="MarkdownV2")
+            await message.answer(text=f"Найдена партия {await tg_text_convert(game["name"])} \(сид: `{game["seed"]}`\):\n\nТеперь в данный чат будут отправляться персонажи присоединившихся игроков\.\n\n" + (await game_card(game)),parse_mode="MarkdownV2")
         else:
             await message.answer("Вы не являетесь владельцем этой партии.")
